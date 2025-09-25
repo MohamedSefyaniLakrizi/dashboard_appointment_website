@@ -1,8 +1,43 @@
+"use client";
+
+import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Button } from "./components/ui/button";
 
 export default function Home() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Add user info display and sign out functionality
+  if (status === "loading") {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-lg">Chargement...</div>
+      </div>
+    );
+  }
+
+  // Middleware handles unauthenticated users, so if we reach here, user is authenticated
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+      {/* User info and sign out button */}
+      <div className="absolute top-4 right-4 flex items-center gap-4">
+        {session?.user?.email && (
+          <span className="text-sm text-gray-600">
+            Connecté en tant que: {session.user.email}
+          </span>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => signOut({ callbackUrl: "/login" })}
+        >
+          Se déconnecter
+        </Button>
+      </div>
+
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <Image
           className="dark:invert"

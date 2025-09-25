@@ -1,0 +1,70 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or sqlite, mysql, etc.
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id                   String      @id @default(cuid())
+  firstName            String
+  lastName             String
+  phoneNumber          String
+  email                String      @unique
+  preferredContact     ContactMethod
+  appointments         Appointment[]
+  notes                Note[]
+  documents            Document[]
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+}
+
+model Appointment {
+  id             String     @id @default(cuid())
+  clientId       String
+  client         Client     @relation(fields: [clientId], references: [id])
+  dateTime       DateTime
+  rate           Decimal    @db.Decimal(10, 2)
+  format         AppointmentFormat
+  isCompleted    Boolean    @default(false)
+  notes          Note[]     // Optional link to notes created during session
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model Note {
+  id             String     @id @default(cuid())
+  clientId       String
+  appointmentId  String?    // optional link to a session
+  client         Client     @relation(fields: [clientId], references: [id])
+  appointment    Appointment? @relation(fields: [appointmentId], references: [id])
+  title          String
+  content        Json       // Tiptap content
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id])
+  fileName   String
+  fileUrl    String   // URL to the uploaded PDF (e.g., S3 or local)
+  uploadedAt DateTime @default(now())
+}
+
+enum ContactMethod {
+  PHONE
+  EMAIL
+  SMS
+  WHATSAPP
+}
+
+enum AppointmentFormat {
+  ONLINE
+  FACE_TO_FACE
+}

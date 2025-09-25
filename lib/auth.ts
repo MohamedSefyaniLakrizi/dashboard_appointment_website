@@ -7,6 +7,12 @@ declare module "next-auth" {
     accessToken?: string;
     refreshToken?: string;
     error?: string;
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
   }
 }
 
@@ -16,6 +22,7 @@ declare module "next-auth/jwt" {
     refreshToken?: string;
     expiresAt?: number;
     error?: string;
+    sub: string;
   }
 }
 
@@ -113,6 +120,12 @@ export const authOptions: NextAuthOptions = {
       session.accessToken = token.accessToken;
       session.refreshToken = token.refreshToken;
       session.error = token.error;
+
+      // Add user ID to session - CRITICAL for data isolation
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+
       return session;
     },
   },

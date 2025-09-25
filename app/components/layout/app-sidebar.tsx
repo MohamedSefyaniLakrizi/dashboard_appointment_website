@@ -16,6 +16,8 @@ import {
   Search,
   Settings,
   Users,
+  NotebookText,
+  Calendar,
 } from "lucide-react";
 
 import {
@@ -27,6 +29,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/app/components/ui/sidebar";
+import Logout from "./sidebar/logout";
+import { usePathname, useRouter } from "next/navigation";
 
 const data = {
   user: {
@@ -146,9 +150,15 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const goTo = (e: React.MouseEvent, url: string) => {
+    e.preventDefault();
+    router.push(url);
+  };
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="offcanvas" {...props} className="bg-slate-50">
+      <SidebarHeader className="pt-5 bg-slate-50 ">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -162,8 +172,65 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent></SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarContent className="bg-slate-50">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={`truncate font-medium flex items-center cursor-pointer ${
+                pathname === "/clients"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : ""
+              }`}
+              onClick={(e) => goTo(e, "/clients")}
+            >
+              <LayoutList />
+              Clients
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={`truncate font-medium flex items-center cursor-pointer ${
+                pathname === "/calendar"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : ""
+              }`}
+              onClick={(e) => goTo(e, "/calendar")}
+            >
+              <Calendar />
+              Calendrier
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={`truncate font-medium flex items-center cursor-pointer ${
+                pathname === "/notes"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : ""
+              }`}
+              onClick={(e) => goTo(e, "/notes")}
+            >
+              <NotebookText />
+              Notes
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={`truncate font-medium flex items-center cursor-pointer ${
+                pathname === "/settings"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : ""
+              }`}
+              onClick={(e) => goTo(e, "/settings")}
+            >
+              <Settings />
+              Paramètres
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarContent>
+      <SidebarFooter className="bg-slate-50">
+        <Logout />
+      </SidebarFooter>
     </Sidebar>
   );
 }

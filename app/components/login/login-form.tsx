@@ -9,16 +9,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import { Input } from "@/app/components/ui/input";
-import { Label } from "@/app/components/ui/label";
-import Image from "next/image";
 import GoogleIcon from "./google-icon";
+import { signIn, useSession } from "next-auth/react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const connectToGoogle = () => {};
+  const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const error = searchParams.get("error");
+
+  // Redirect to home if already authenticated
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
   return (
     <div className={cn("flex flex-col gap-6 w-96 mx-3", className)} {...props}>
       <Card>
@@ -31,11 +42,46 @@ export function LoginForm({
         <CardContent>
           <form>
             <div className="flex flex-col gap-6">
+              {error && (
+                <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">
+                  {error === "unauthorized" &&
+                    "Accès non autorisé. Veuillez utiliser un compte autorisé."}
+                  {error === "OAuthSignin" &&
+                    "Erreur lors de la connexion avec Google."}
+                  {error === "OAuthCallback" && "Erreur de callback OAuth."}
+                  {error === "OAuthCreateAccount" &&
+                    "Erreur lors de la création du compte."}
+                  {error === "EmailCreateAccount" &&
+                    "Erreur lors de la création du compte email."}
+                  {error === "Callback" && "Erreur de callback."}
+                  {error === "OAuthAccountNotLinked" &&
+                    "Ce compte n'est pas lié."}
+                  {error === "EmailSignin" &&
+                    "Erreur lors de l'envoi de l'email."}
+                  {error === "CredentialsSignin" && "Identifiants invalides."}
+                  {![
+                    "unauthorized",
+                    "OAuthSignin",
+                    "OAuthCallback",
+                    "OAuthCreateAccount",
+                    "EmailCreateAccount",
+                    "Callback",
+                    "OAuthAccountNotLinked",
+                    "EmailSignin",
+                    "CredentialsSignin",
+                  ].includes(error) &&
+                    "Une erreur est survenue lors de la connexion."}
+                </div>
+              )}
               <div className="flex flex-col gap-3">
                 <Button
                   variant="outline"
                   className="w-full cursor-pointer"
-                  onClick={() => connectToGoogle()}
+                  disabled={status === "loading"}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    signIn("google");
+                  }}
                 >
                   <GoogleIcon />
                   Se connecter avec Google
