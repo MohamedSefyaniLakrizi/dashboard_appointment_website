@@ -13,24 +13,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowUpDown,
-  ChevronDown,
-  MoreHorizontal,
-  NotebookText,
-} from "lucide-react";
+import { ArrowUpDown, Edit2, NotebookText, Trash2 } from "lucide-react";
 
 import { Button } from "@/app/components/ui/button";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/app/components/ui/dropdown-menu";
 import { Input } from "@/app/components/ui/input";
 import {
   Table,
@@ -40,8 +26,92 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { AddClientDialog } from "./add-client-dialog";
+import { EditClientDialog } from "./edit-client-dialog";
+import { DeleteClientDialog } from "./delete-client-dialog";
 import { useRouter } from "next/navigation";
+
+// Hook for navigation within cell components
+function useClientNavigation() {
+  const router = useRouter();
+  return (clientId: string) => router.push(`/clients/${clientId}`);
+}
+
+// Clickable name component
+function ClickableName({
+  children,
+  clientId,
+}: {
+  children: React.ReactNode;
+  clientId: string;
+}) {
+  const router = useRouter();
+  return (
+    <div
+      className="capitalize cursor-pointer hover:text-blue-600 hover:underline"
+      onClick={() => router.push(`/clients/${clientId}`)}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Actions component with tooltips
+function ClientActions({ client }: { client: Client }) {
+  const router = useRouter();
+  return (
+    <TooltipProvider>
+      <div className="flex items-center gap-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0"
+              onClick={(e) => {
+                e.preventDefault();
+                router.push(`/clients/${client.id}`);
+              }}
+            >
+              <span className="sr-only">View</span>
+              <NotebookText className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Voir les détails du client</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <EditClientDialog client={client} />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Modifier le client</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <DeleteClientDialog client={client} />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Supprimer le client</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
+  );
+}
 
 export type Client = {
   id: string;
@@ -49,7 +119,9 @@ export type Client = {
   lastName: string;
   email: string;
   phoneNumber: string;
-  preferredContact: "PHONE" | "EMAIL" | "SMS" | "WHATSAPP";
+  defaultRate: number; // Price per session in cents
+  sendInvoiceAutomatically: boolean;
+  preferredContact: string; // ContactMethod enum
   createdAt: Date;
 };
 
@@ -82,7 +154,9 @@ export const columns: ColumnDef<Client>[] = [
     accessorKey: "firstName",
     header: "Prénom",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("firstName")}</div>
+      <ClickableName clientId={row.original.id}>
+        {row.getValue("firstName")}
+      </ClickableName>
     ),
   },
   {
@@ -99,7 +173,9 @@ export const columns: ColumnDef<Client>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("lastName")}</div>
+      <ClickableName clientId={row.original.id}>
+        {row.getValue("lastName")}
+      </ClickableName>
     ),
   },
   {
@@ -124,76 +200,29 @@ export const columns: ColumnDef<Client>[] = [
       <div className="capitalize">{row.getValue("phoneNumber")}</div>
     ),
   },
+  // defaultRate column (price per session)
   {
-    accessorKey: "preferredContact",
-    header: "Contact préféré",
+    accessorKey: "defaultRate",
+    header: "Tarif/séance",
     cell: ({ row }) => {
-      const method = row.getValue("preferredContact") as string;
-      const labels = {
-        PHONE: "Téléphone",
-        EMAIL: "Email",
-        SMS: "SMS",
-        WHATSAPP: "WhatsApp",
-      };
-      return (
-        <div className="capitalize">
-          {labels[method as keyof typeof labels] || method}
-        </div>
-      );
+      const rate = Number(row.getValue("defaultRate") ?? 0);
+      // Convert from cents to euros
+      return <div className="font-medium">{rate} Dh</div>;
     },
   },
+  // sendInvoiceAutomatically column
   {
-    accessorKey: "createdAt",
-    header: "Date d'ajout",
+    accessorKey: "sendInvoiceAutomatically",
+    header: "Facture auto",
     cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt"));
-      return <div>{date.toLocaleDateString("fr-FR")}</div>;
+      const val = row.getValue("sendInvoiceAutomatically") as boolean;
+      return <div>{val ? "Oui" : "Non"}</div>;
     },
   },
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
-      const client = row.original;
-      const router = useRouter();
-      return (
-        <>
-          <Button
-            variant="ghost"
-            className="h-8 w-8 p-0"
-            onClick={(e) => {
-              e.preventDefault();
-              router.push(`/clients/${client.id}`);
-            }}
-          >
-            <span className="sr-only">View</span>
-            <NotebookText className="h-4 w-4" />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(client.id)}
-              >
-                Copier l'ID client
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Voir les détails</DropdownMenuItem>
-              <DropdownMenuItem>Modifier</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600">
-                Supprimer
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
-      );
-    },
+    cell: ({ row }) => <ClientActions client={row.original} />,
   },
 ];
 
@@ -216,11 +245,13 @@ export function DataTable({ data }: DataTableProps) {
   function globalClientFilter(row: any, columnId: string, filterValue: string) {
     const search = filterValue.toLowerCase();
     return (
-      row.original.firstName.toLowerCase().includes(search) ||
-      row.original.lastName.toLowerCase().includes(search) ||
-      row.original.email.toLowerCase().includes(search) ||
-      row.original.phoneNumber.toLowerCase().includes(search) ||
-      row.original.preferredContact.toLowerCase().includes(search)
+      row.original.firstName?.toLowerCase().includes(search) ||
+      row.original.lastName?.toLowerCase().includes(search) ||
+      row.original.email?.toLowerCase().includes(search) ||
+      row.original.phoneNumber?.toLowerCase().includes(search) ||
+      row.original.defaultRate.includes(search) ||
+      row.original.preferredContact?.toLowerCase().includes(search) ||
+      (row.original.sendInvoiceAutomatically ? "oui" : "non").includes(search)
     );
   }
 

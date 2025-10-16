@@ -11,8 +11,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Single-user app: Get all clients (no user filtering needed)
+    // Single-user app: Get all confirmed clients only (no user filtering needed)
     const clients = await prisma.client.findMany({
+      where: {
+        confirmed: true,
+      },
       orderBy: {
         createdAt: "desc",
       },

@@ -14,8 +14,11 @@ export async function getClients() {
   }
 
   try {
-    // Single-user app: get all clients
+    // Single-user app: get all confirmed clients only
     const clients = await prisma.client.findMany({
+      where: {
+        confirmed: true,
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -39,6 +42,10 @@ export async function createClient(formData: FormData) {
   const email = formData.get("email") as string;
   const phoneNumber = formData.get("phoneNumber") as string;
   const preferredContact = formData.get("preferredContact") as string;
+  const sendInvoiceAutomatically =
+    formData.get("sendInvoiceAutomatically") === "on";
+  const defaultRateValue = formData.get("defaultRate") as string | null;
+  const defaultRate = defaultRateValue ? parseInt(defaultRateValue, 10) : 300;
 
   if (!firstName || !lastName || !email) {
     return {
@@ -48,22 +55,100 @@ export async function createClient(formData: FormData) {
   }
 
   try {
-    // Single-user app: create client without user association
-    await prisma.client.create({
+    // Single-user app: create client without user association (confirmed by default for admin)
+    const client = await prisma.client.create({
       data: {
         firstName,
         lastName,
         email,
         phoneNumber: phoneNumber || "",
         preferredContact: (preferredContact as any) || "EMAIL",
+        sendInvoiceAutomatically,
+        defaultRate,
+        confirmed: true, // Admin-created clients are automatically confirmed
       },
     });
 
     revalidatePath("/clients");
-    return { success: true, message: "Client created successfully" };
+    return {
+      success: true,
+      message: "Client created successfully",
+      client: {
+        id: client.id,
+        name: `${client.firstName} ${client.lastName}`,
+        firstName: client.firstName,
+        lastName: client.lastName,
+        email: client.email,
+        phoneNumber: client.phoneNumber,
+        preferredContact: client.preferredContact,
+        defaultRate: defaultRate,
+      },
+    };
   } catch (error) {
     console.error("Error creating client:", error);
     return { success: false, error: "Failed to create client" };
+  }
+}
+
+export async function updateClient(clientId: string, formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  const firstName = formData.get("firstName") as string;
+  const lastName = formData.get("lastName") as string;
+  const email = formData.get("email") as string;
+  const phoneNumber = formData.get("phoneNumber") as string;
+  const preferredContact = formData.get("preferredContact") as string;
+  const sendInvoiceAutomatically =
+    formData.get("sendInvoiceAutomatically") === "on";
+  const defaultRateValue = formData.get("defaultRate") as string | null;
+  const defaultRate = defaultRateValue ? parseInt(defaultRateValue, 10) : 300;
+
+  if (!firstName || !lastName || !email) {
+    return {
+      success: false,
+      error: "First name, last name and email are required",
+    };
+  }
+
+  try {
+    const client = await prisma.client.update({
+      where: {
+        id: clientId,
+      },
+      data: {
+        firstName,
+        lastName,
+        email,
+        phoneNumber: phoneNumber || "",
+        preferredContact: (preferredContact as any) || "EMAIL",
+        sendInvoiceAutomatically,
+        defaultRate,
+      },
+    });
+
+    revalidatePath("/clients");
+    return {
+      success: true,
+      message: "Client updated successfully",
+      client: {
+        id: client.id,
+        name: `${client.firstName} ${client.lastName}`,
+        firstName: client.firstName,
+        lastName: client.lastName,
+        email: client.email,
+        phoneNumber: client.phoneNumber,
+        preferredContact: client.preferredContact,
+        defaultRate: client.defaultRate,
+        sendInvoiceAutomatically: client.sendInvoiceAutomatically,
+      },
+    };
+  } catch (error) {
+    console.error("Error updating client:", error);
+    return { success: false, error: "Failed to update client" };
   }
 }
 

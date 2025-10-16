@@ -16,9 +16,13 @@ model Client {
   phoneNumber          String
   email                String      @unique
   preferredContact     ContactMethod
+  sendInvoiceAutomatically Boolean @default(true)
+  defaultRate          Int         @default(300)
+  confirmed            Boolean     @default(false) // For approval system
   appointments         Appointment[]
   notes                Note[]
   documents            Document[]
+  invoices             Invoice[]
   createdAt            DateTime    @default(now())
   updatedAt            DateTime    @updatedAt
 }
@@ -27,23 +31,61 @@ model Appointment {
   id             String     @id @default(cuid())
   clientId       String
   client         Client     @relation(fields: [clientId], references: [id])
-  dateTime       DateTime
-  rate           Decimal    @db.Decimal(10, 2)
+  startTime      DateTime
+  endTime        DateTime
   format         AppointmentFormat
+  status         AppointmentStatus? @default(NOT_YET_ATTENDED)
   isCompleted    Boolean    @default(false)
-  notes          Note[]     // Optional link to notes created during session
+  isRecurring    Boolean    @default(false)
+  recurringType  RecurringType?
+  recurringEndDate DateTime?
+  recurrentId    String?    
+  confirmed      Boolean    @default(false) // For approval system
+  // Jitsi meeting fields (only for online appointments)
+  hostJwt        String?    // JWT token for the host
+  clientJwt      String?    // JWT token for the client
+  hostAttended   Boolean?   // Whether the host attended the meeting
+  clientAttended Boolean?   // Whether the client attended the meeting
+  notes          Note[]     
+  emailSchedules EmailSchedule[]
+  invoice        Invoice?   // One-to-one relationship with invoice
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 }
 
+model EmailSchedule {
+  id          String   @id @default(cuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  
+  emailType   EmailType
+  scheduledFor DateTime
+  status      EmailStatus @default(PENDING)
+  
+  // Email content
+  recipientEmail String
+  recipientName  String
+  subject       String
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  sentAt      DateTime?
+  errorMessage String?
+  
+  @@index([scheduledFor])
+  @@index([status])
+  @@index([appointmentId])
+}
+
 model Note {
   id             String     @id @default(cuid())
-  clientId       String
+  clientId       String?    // optional link to a client
   appointmentId  String?    // optional link to a session
-  client         Client     @relation(fields: [clientId], references: [id])
+  client         Client?    @relation(fields: [clientId], references: [id])
   appointment    Appointment? @relation(fields: [appointmentId], references: [id])
   title          String
-  content        Json       // Tiptap content
+  content        Json       // Lexical content
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 }
@@ -57,6 +99,27 @@ model Document {
   uploadedAt DateTime @default(now())
 }
 
+model Invoice {
+  id            String        @id @default(cuid())
+  clientId      String
+  client        Client        @relation(fields: [clientId], references: [id])
+  appointmentId String?       @unique // Optional, one-to-one with appointment
+  appointment   Appointment?  @relation(fields: [appointmentId], references: [id])
+  amount        Decimal       @db.Decimal(10, 2)
+  status        InvoiceStatus @default(UNPAID)
+  paymentMethod PaymentMethod?
+  description   String?       // Optional description
+  dueDate       DateTime?     // Optional due date
+  paidAt        DateTime?     // When it was paid
+  emailSent     Boolean       @default(false) // Whether invoice has been sent by email
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([clientId])
+  @@index([appointmentId])
+  @@index([dueDate])
+}
+
 enum ContactMethod {
   PHONE
   EMAIL
@@ -67,4 +130,45 @@ enum ContactMethod {
 enum AppointmentFormat {
   ONLINE
   FACE_TO_FACE
+}
+
+enum AppointmentStatus {
+  NOT_YET_ATTENDED  // Future appointments
+  ATTENDED          // Completed and attended
+  ABSENT           // Completed but client didn't show up
+  CANCELLED        // Cancelled appointment
+}
+
+enum RecurringType {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+enum EmailType {
+  CONFIRMATION
+  REMINDER_24H
+  REMINDER_1H
+  INVOICE_DELIVERY
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  CANCELLED
+  FAILED
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  OVERDUE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  CHECK
+  OTHER
 }

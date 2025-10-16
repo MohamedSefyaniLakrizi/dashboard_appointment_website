@@ -13,20 +13,39 @@ import {
 } from "@/app/components/ui/dialog";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
+import { Checkbox } from "@/app/components/ui/checkbox";
 import { createClient } from "@/lib/actions/clients";
 import { Plus } from "lucide-react";
 
-export function AddClientDialog() {
+interface AddClientDialogProps {
+  onClientAdded?: (client: any) => void;
+}
+
+export function AddClientDialog({ onClientAdded }: AddClientDialogProps = {}) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); // Prevent the form from submitting to parent
+    event.stopPropagation(); // Stop event bubbling
+
+    // Store reference to form before async operation
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     setLoading(true);
+
     try {
       const result = await createClient(formData);
       if (result.success) {
         setOpen(false);
-        // Form will be reset automatically when dialog closes
+        // Reset form using stored reference
+        form.reset();
+        // Call the callback if provided, otherwise reload
+        if (onClientAdded) {
+          onClientAdded(result.client);
+        } else {
+          window.location.reload();
+        }
       } else {
         alert(result.error);
       }
@@ -54,7 +73,7 @@ export function AddClientDialog() {
             l'ajouter.
           </DialogDescription>
         </DialogHeader>
-        <form action={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="firstName" className="text-right">
@@ -115,9 +134,44 @@ export function AddClientDialog() {
                 <option value="WHATSAPP">WhatsApp</option>
               </select>
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="sendInvoiceAutomatically">
+                Facture automatique
+              </Label>
+              <div className="col-span-3 flex items-center space-x-2">
+                <Checkbox
+                  id="sendInvoiceAutomatically"
+                  name="sendInvoiceAutomatically"
+                  defaultChecked={true}
+                />
+                <Label
+                  htmlFor="sendInvoiceAutomatically"
+                  className="text-xs text-muted-foreground"
+                >
+                  Envoyer automatiquement la facture après chaque séance
+                </Label>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="defaultRate">Tarif par défaut (Dh)</Label>
+              <Input
+                id="defaultRate"
+                name="defaultRate"
+                type="number"
+                defaultValue={300}
+                className="col-span-3"
+                min={0}
+              />
+            </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event bubbling
+              }}
+            >
               {loading ? "Sauvegarde..." : "Sauvegarder"}
             </Button>
           </DialogFooter>

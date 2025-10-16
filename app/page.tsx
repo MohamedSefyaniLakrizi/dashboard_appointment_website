@@ -1,138 +1,238 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
 import { Button } from "./components/ui/button";
+import {
+  CalendarDays,
+  DollarSign,
+  Users,
+  Receipt,
+  TrendingUp,
+  AlertTriangle,
+} from "lucide-react";
+import {
+  getDashboardStats,
+  getMonthlyData,
+  getAppointmentStatusData,
+  getTodayAppointments,
+  getRecentActivity,
+  getTopClients,
+  type DashboardStats,
+  type MonthlyData,
+  type AppointmentStatus,
+  type TodayAppointment,
+  type RecentActivity,
+  type TopClient,
+} from "@/lib/actions/dashboard";
+import {
+  AppointmentTrendChart,
+  RevenueChart,
+  AppointmentStatusChart,
+  CombinedChart,
+} from "./components/dashboard/charts";
+import {
+  TodaySchedule,
+  RecentActivityCard,
+  TopClientsCard,
+  QuickActionsCard,
+  AlertsCard,
+} from "./components/dashboard/dashboard-cards";
 
-export default function Home() {
-  const router = useRouter();
+export default function DashboardPage() {
   const { data: session, status } = useSession();
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalAppointments: 0,
+    totalRevenue: 0,
+    activeClients: 0,
+    pendingInvoicesAmount: 0,
+    upcomingAppointments: 0,
+    overdueInvoices: 0,
+  });
+  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
+  const [statusData, setStatusData] = useState<AppointmentStatus[]>([]);
+  const [todayAppointments, setTodayAppointments] = useState<
+    TodayAppointment[]
+  >([]);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [topClients, setTopClients] = useState<TopClient[]>([]);
 
-  // Add user info display and sign out functionality
-  if (status === "loading") {
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        const [
+          statsData,
+          monthlyDataResponse,
+          statusDataResponse,
+          todayAppointmentsResponse,
+          recentActivityResponse,
+          topClientsResponse,
+        ] = await Promise.all([
+          getDashboardStats(),
+          getMonthlyData(),
+          getAppointmentStatusData(),
+          getTodayAppointments(),
+          getRecentActivity(),
+          getTopClients(),
+        ]);
+
+        setStats(statsData);
+        setMonthlyData(monthlyDataResponse);
+        setStatusData(statusDataResponse);
+        setTodayAppointments(todayAppointmentsResponse);
+        setRecentActivity(recentActivityResponse);
+        setTopClients(topClientsResponse);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (status === "loading" || isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="text-lg">Chargement...</div>
+        <div className="text-lg">Chargement du tableau de bord...</div>
       </div>
     );
   }
 
-  // Middleware handles unauthenticated users, so if we reach here, user is authenticated
+  const formatCurrency = (amount: number) => `${amount.toFixed(2)} Dh`;
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      {/* User info and sign out button */}
-      <div className="absolute top-4 right-4 flex items-center gap-4">
-        {session?.user?.email && (
-          <span className="text-sm text-gray-600">
-            Connecté en tant que: {session.user.email}
-          </span>
-        )}
+    <div className="h-full flex flex-col">
+      <div className="flex justify-between items-center px-4 py-6 flex-shrink-0">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Tableau de Bord</h1>
+          <p className="text-muted-foreground">Bienvenue, Malika Lkhabir</p>
+        </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => signOut({ callbackUrl: "/login" })}
+          className="text-xs md:text-sm"
         >
           Se déconnecter
         </Button>
       </div>
-
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="flex-1 overflow-hidden flex flex-col gap-2 md:gap-3 px-4 pb-4">
+        {/* Alerts */}
+        <div className="flex-shrink-0">
+          <AlertsCard
+            overdueInvoices={stats.overdueInvoices}
+            upcomingAppointments={stats.upcomingAppointments}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Key Metrics Cards */}
+        <div className="grid gap-2 md:gap-3 grid-cols-2 md:grid-cols-4 flex-shrink-0 h-12 md:h-16">
+          <Card className="p-1.5 md:p-2">
+            <div className="flex items-center justify-between h-full">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  <span className="md:hidden">RDV</span>
+                  <span className="hidden md:inline">Rendez-vous</span>
+                </p>
+                <p className="text-sm md:text-lg font-bold">
+                  {stats.totalAppointments}
+                </p>
+              </div>
+              <CalendarDays className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+            </div>
+          </Card>
+
+          <Card className="p-1.5 md:p-2">
+            <div className="flex items-center justify-between h-full">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  <span className="md:hidden">CA</span>
+                  <span className="hidden md:inline">Chiffre d'Affaires</span>
+                </p>
+                <p className="text-sm md:text-lg font-bold text-green-600">
+                  {formatCurrency(stats.totalRevenue)}
+                </p>
+              </div>
+              <DollarSign className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+            </div>
+          </Card>
+
+          <Card className="p-1.5 md:p-2">
+            <div className="flex items-center justify-between h-full">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  <span className="md:hidden">Clients</span>
+                  <span className="hidden md:inline">Clients Actifs</span>
+                </p>
+                <p className="text-sm md:text-lg font-bold text-blue-600">
+                  {stats.activeClients}
+                </p>
+              </div>
+              <Users className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+            </div>
+          </Card>
+
+          <Card className="p-1.5 md:p-2">
+            <div className="flex items-center justify-between h-full">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  En Attente
+                </p>
+                <p className="text-sm md:text-lg font-bold text-orange-600">
+                  {formatCurrency(stats.pendingInvoicesAmount)}
+                </p>
+              </div>
+              <Receipt className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+            </div>
+          </Card>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid gap-2 md:gap-3 grid-cols-1 md:grid-cols-6 flex-1 min-h-0">
+          {/* Left Column - Charts (Desktop: 4 cols, Mobile: full width) */}
+          <div className="md:col-span-4 flex flex-col gap-2 md:gap-3 min-h-0 md:h-full">
+            {/* Top Charts Row */}
+            <div className="grid gap-2 md:gap-3 grid-cols-1 md:grid-cols-2 flex-1 min-h-0">
+              <div className="h-48 md:h-full min-h-0">
+                <AppointmentTrendChart data={monthlyData} />
+              </div>
+              <div className="h-48 md:h-full min-h-0">
+                <RevenueChart data={monthlyData} />
+              </div>
+            </div>
+            {/* Bottom Charts Row */}
+            <div className="grid gap-2 md:gap-3 grid-cols-1 md:grid-cols-2 flex-1 min-h-0">
+              <div className="h-48 md:h-full min-h-0">
+                <AppointmentStatusChart data={statusData} />
+              </div>
+              <div className="h-48 md:h-full min-h-0">
+                <CombinedChart data={monthlyData} />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Cards (Desktop: 2 cols, Mobile: full width below charts) */}
+          <div className="md:col-span-2 flex flex-col gap-2 md:gap-3 min-h-0 md:h-full">
+            <div className="flex-1 min-h-0">
+              <TodaySchedule appointments={todayAppointments} />
+            </div>
+            <div className="flex-1 min-h-0">
+              <RecentActivityCard activities={recentActivity} />
+            </div>
+            <div className="flex-1 min-h-0 h-full">
+              <div className="grid gap-2 md:gap-3 grid-cols-2 h-full">
+                <TopClientsCard clients={topClients} />
+                <QuickActionsCard />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

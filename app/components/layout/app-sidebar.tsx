@@ -18,6 +18,9 @@ import {
   Users,
   NotebookText,
   Calendar,
+  Video,
+  Receipt,
+  UserCheck,
 } from "lucide-react";
 
 import {
@@ -177,6 +180,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               className={`truncate font-medium flex items-center cursor-pointer ${
+                pathname === "/"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : ""
+              }`}
+              onClick={(e) => goTo(e, "/")}
+            >
+              <LayoutDashboard />
+              Tableau de Bord
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={`truncate font-medium flex items-center cursor-pointer ${
                 pathname === "/clients"
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : ""
@@ -203,6 +219,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               className={`truncate font-medium flex items-center cursor-pointer ${
+                pathname === "/meeting-room"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : ""
+              }`}
+              onClick={(e) => goTo(e, "/meeting-room")}
+            >
+              <Video />
+              Salle de Réunion
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={`truncate font-medium flex items-center cursor-pointer ${
                 pathname === "/notes"
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : ""
@@ -216,14 +245,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               className={`truncate font-medium flex items-center cursor-pointer ${
-                pathname === "/settings"
+                pathname === "/invoices"
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : ""
               }`}
-              onClick={(e) => goTo(e, "/settings")}
+              onClick={(e) => goTo(e, "/invoices")}
             >
-              <Settings />
-              Paramètres
+              <Receipt />
+              Factures
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={`truncate font-medium flex items-center cursor-pointer ${
+                pathname === "/approvals"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : ""
+              }`}
+              onClick={(e) => goTo(e, "/approvals")}
+            >
+              <UserCheck />
+              Approbations
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

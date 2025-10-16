@@ -6,9 +6,57 @@ export default withAuth(
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token;
 
+    // Create the response
+    let response = NextResponse.next();
+
+    // Handle meeting pages - allow public access to /meeting but protect /meeting/host
+    if (pathname.startsWith("/meeting/") && pathname !== "/meeting-room") {
+      // Set headers for cross-site cookies and iframe embedding
+      response.headers.set("X-Frame-Options", "SAMEORIGIN");
+      response.headers.set(
+        "Content-Security-Policy",
+        "frame-ancestors 'self' *.8x8.vc *.jitsi.net"
+      );
+      response.headers.set(
+        "Permissions-Policy",
+        "microphone=*, camera=*, speaker-selection=*, display-capture=*"
+      );
+      response.headers.set("Cross-Origin-Embedder-Policy", "unsafe-none");
+      response.headers.set(
+        "Cross-Origin-Opener-Policy",
+        "same-origin-allow-popups"
+      );
+
+      // Set SameSite=None for cross-site cookies
+      const cookieHeader = response.headers.get("Set-Cookie") || "";
+      if (cookieHeader) {
+        const updatedCookie = cookieHeader
+          .replace(/SameSite=\w+/gi, "SameSite=None")
+          .concat("; Secure");
+        response.headers.set("Set-Cookie", updatedCookie);
+      }
+
+      // Check if this is the host route - require authentication
+      if (pathname.startsWith("/meeting/host")) {
+        if (!token) {
+          const loginUrl = new URL("/login", req.url);
+          loginUrl.searchParams.set("callbackUrl", req.url);
+          return NextResponse.redirect(loginUrl);
+        }
+      }
+
+      // Allow public access to other meeting routes (like /meeting/[...id])
+      return response;
+    }
+
+    // Handle direct /meeting route - allow public access
+    if (pathname === "/meeting") {
+      return response;
+    }
+
     // Allow access to login page and auth routes
     if (pathname.startsWith("/login") || pathname.startsWith("/api/auth")) {
-      return NextResponse.next();
+      return response;
     }
 
     // Redirect to login if no token and trying to access protected route
@@ -24,7 +72,7 @@ export default withAuth(
     //   return NextResponse.redirect(new URL("/unauthorized", req.url));
     // }
 
-    return NextResponse.next();
+    return response;
   },
   {
     callbacks: {
