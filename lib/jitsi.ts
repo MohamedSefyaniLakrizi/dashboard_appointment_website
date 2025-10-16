@@ -126,7 +126,7 @@ export function generateMeetingUrl(
   clientName: string,
   clientEmail?: string
 ): string {
-  const baseUrl = process.env.NEXTAUTH_URL;
+  const baseUrl = process.env.WEBSITE_URL;
 
   // Encode the parameters for the URL
   const params = new URLSearchParams({
@@ -205,7 +205,7 @@ export function generateMeetingUrlWithToken(
   userType: "host" | "client",
   jwt: string
 ): string {
-  const baseUrl = process.env.NEXTAUTH_URL;
+  const baseUrl = process.env.WEBSITE_URL;
 
   const params = new URLSearchParams({
     id: appointmentId,

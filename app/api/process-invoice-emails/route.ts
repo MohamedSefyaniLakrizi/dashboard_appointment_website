@@ -44,7 +44,7 @@ export async function POST() {
 
         // Send the automated invoice email
         const response = await fetch(
-          `${process.env.NEXTAUTH_URL}/api/send-automated-invoice-email`,
+          `${process.env.WEBSITE_URL}/api/send-automated-invoice-email`,
           {
             method: "POST",
             headers: {
