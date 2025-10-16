@@ -4,10 +4,7 @@ import type React from "react";
 import { createContext, useContext, useState } from "react";
 import { useLocalStorage } from "@/app/components/calendar/hooks";
 import type { IEvent, IUser } from "@/app/components/calendar/interfaces";
-import type {
-  TCalendarView,
-  TEventColor,
-} from "@/app/components/calendar/types";
+import type { TCalendarView } from "@/app/components/calendar/types";
 import {
   createAppointment,
   updateAppointment,

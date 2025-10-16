@@ -2,8 +2,7 @@
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection, $isRangeSelection, $createTextNode } from "lexical";
-import { $createLinkNode, $isLinkNode, LinkNode } from "@lexical/link";
-import { $findMatchingParent } from "@lexical/utils";
+import { $createLinkNode } from "@lexical/link";
 import { useState } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";

@@ -70,7 +70,7 @@ export function AddClientDialog({ onClientAdded }: AddClientDialogProps = {}) {
           <DialogTitle>Ajouter un nouveau client</DialogTitle>
           <DialogDescription>
             Saisissez les informations du client. Cliquez sur sauvegarder pour
-            l'ajouter.
+            l&apos;ajouter.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>

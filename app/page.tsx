@@ -2,16 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
+import { Card } from "./components/ui/card";
 import { Button } from "./components/ui/button";
-import {
-  CalendarDays,
-  DollarSign,
-  Users,
-  Receipt,
-  TrendingUp,
-  AlertTriangle,
-} from "lucide-react";
+import { CalendarDays, DollarSign, Users, Receipt } from "lucide-react";
 import {
   getDashboardStats,
   getMonthlyData,
@@ -41,7 +34,7 @@ import {
 } from "./components/dashboard/dashboard-cards";
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({
     totalAppointments: 0,
@@ -152,7 +145,9 @@ export default function DashboardPage() {
               <div>
                 <p className="text-xs font-medium text-muted-foreground">
                   <span className="md:hidden">CA</span>
-                  <span className="hidden md:inline">Chiffre d'Affaires</span>
+                  <span className="hidden md:inline">
+                    Chiffre d&apos;Affaires
+                  </span>
                 </p>
                 <p className="text-sm md:text-lg font-bold text-green-600">
                   {formatCurrency(stats.totalRevenue)}

@@ -2,13 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import type { IEvent, IUser } from "@/app/components/calendar/interfaces";
-import {
-  addWeeks,
-  addMonths,
-  addDays,
-  differenceInDays,
-  format,
-} from "date-fns";
+import { addDays, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { randomUUID } from "crypto";
 import { generateJitsiTokensForAppointment } from "@/lib/jitsi";
@@ -184,18 +178,13 @@ export async function createAppointment(data: {
       console.log("📅 Creating recurring appointments");
 
       const appointments: any[] = [];
-      const {
-        isRecurring,
-        recurringType,
-        recurringEndDate,
-        ...appointmentBaseData
-      } = data;
+      const { recurringType, recurringEndDate, ...appointmentBaseData } = data;
 
       // Generate a unique recurrentId for all appointments in this series
       const recurrentId = randomUUID();
       console.log("🆔 Generated recurrentId for series:", recurrentId);
 
-      let currentDate = new Date(appointmentBaseData.startTime);
+      const currentDate = new Date(appointmentBaseData.startTime);
       const endDate = new Date(recurringEndDate);
 
       let iteration = 0;
@@ -658,7 +647,7 @@ export async function updateAppointment(
           }
         } else {
           // Regular series update without time or day differences
-          const { timeDifferences, dayDifference, ...updateData } = data;
+          const { ...updateData } = data;
           const updateResult = await (prisma as any).appointment.updateMany({
             where: {
               recurrentId: originalAppointment.recurrentId,

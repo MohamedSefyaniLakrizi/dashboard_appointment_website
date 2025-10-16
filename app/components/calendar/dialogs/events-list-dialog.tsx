@@ -16,7 +16,6 @@ import {
 } from "@/app/components/calendar/helpers";
 import type { IEvent } from "@/app/components/calendar/interfaces";
 import { dayCellVariants } from "@/app/components/calendar/views/month-view/day-cell";
-import { EventBullet } from "@/app/components/calendar/views/month-view/event-bullet";
 import { EventStatusBadge } from "@/app/components/calendar/views/month-view/event-status-badge";
 import { EventDetailsDialog } from "@/app/components/calendar/dialogs/event-details-dialog";
 

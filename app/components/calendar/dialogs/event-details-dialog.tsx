@@ -5,21 +5,18 @@ import { fr } from "date-fns/locale";
 import {
   Calendar,
   Clock,
-  Text,
   User,
   DollarSign,
   Monitor,
   FileText,
   Plus,
   CheckCircle,
-  XCircle,
   CreditCard,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
-import { Badge } from "@/app/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -48,17 +45,13 @@ import {
   createNote,
   type Note,
 } from "@/lib/actions/notes";
-import {
-  updateAppointmentStatus,
-  updateAppointmentStatusAndPayment,
-} from "@/lib/actions/appointments";
+import { updateAppointmentStatusAndPayment } from "@/lib/actions/appointments";
 import { toast } from "sonner";
 import {
   getInvoices,
   updateInvoice,
   type Invoice,
 } from "@/lib/actions/invoices";
-import { Input } from "@/app/components/ui/input";
 
 interface IProps {
   event: IEvent;
@@ -79,20 +72,7 @@ export function EventDetailsDialog({ event, children }: IProps) {
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
   const router = useRouter();
 
-  // Load notes when dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      loadNotes();
-      loadInvoice();
-    }
-  }, [isOpen, event.id]);
-
-  // Update local event when prop changes
-  useEffect(() => {
-    setLocalEvent(event);
-  }, [event]);
-
-  const loadNotes = async () => {
+  const loadNotes = useCallback(async () => {
     setIsLoadingNotes(true);
     try {
       const appointmentNotes = await getNotesByAppointmentId(event.id);
@@ -103,9 +83,9 @@ export function EventDetailsDialog({ event, children }: IProps) {
     } finally {
       setIsLoadingNotes(false);
     }
-  };
+  }, [event.id]);
 
-  const loadInvoice = async () => {
+  const loadInvoice = useCallback(async () => {
     setIsLoadingInvoice(true);
     try {
       const all = await getInvoices();
@@ -121,7 +101,20 @@ export function EventDetailsDialog({ event, children }: IProps) {
     } finally {
       setIsLoadingInvoice(false);
     }
-  };
+  }, [event.id]);
+
+  // Load notes when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      loadNotes();
+      loadInvoice();
+    }
+  }, [isOpen, event.id, loadNotes, loadInvoice]);
+
+  // Update local event when prop changes
+  useEffect(() => {
+    setLocalEvent(event);
+  }, [event]);
 
   const handleCreateNote = async () => {
     setIsCreatingNote(true);

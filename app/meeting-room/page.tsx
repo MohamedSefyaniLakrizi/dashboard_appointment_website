@@ -2,29 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  format,
-  isToday,
-  isTomorrow,
-  isThisWeek,
-  differenceInYears,
-  differenceInMonths,
-  differenceInDays,
-  differenceInHours,
-  differenceInMinutes,
-} from "date-fns";
+import { format, isToday, isTomorrow, isThisWeek } from "date-fns";
 import { fr } from "date-fns/locale";
-import {
-  Video,
-  Clock,
-  User,
-  Calendar,
-  Phone,
-  Monitor,
-  Plus,
-  Copy,
-  ExternalLink,
-} from "lucide-react";
+import { Video, Clock, User, Calendar, Copy } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import {
   Card,
@@ -388,7 +368,7 @@ export default function MeetingRoomPage() {
           {/* Grouped sections */}
           {todayAppointments.length > 0 && (
             <section>
-              <h2 className="text-xl font-semibold">Aujourd'hui</h2>
+              <h2 className="text-xl font-semibold">Aujourd&apos;hui</h2>
               <div className="grid gap-4 mt-3">
                 {todayAppointments.map((appointment) => (
                   <Card

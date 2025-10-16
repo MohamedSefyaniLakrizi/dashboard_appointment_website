@@ -1,18 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  CalendarRange,
-  Columns,
-  Grid2X2,
-  Grid3X3,
-  LayoutList,
-  List,
-  Plus,
-} from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/app/components/ui/button";
-import { ButtonGroup } from "@/app/components/ui/button-group";
 import {
   slideFromLeft,
   slideFromRight,
@@ -23,7 +14,6 @@ import { DateNavigator } from "@/app/components/calendar/header/date-navigator";
 import FilterEvents from "@/app/components/calendar/header/filter";
 import { TodayButton } from "@/app/components/calendar/header/today-button";
 import { UserSelect } from "@/app/components/calendar/header/user-select";
-import { Settings } from "@/app/components/calendar/settings/settings";
 import Views from "./view-tabs";
 
 export function CalendarHeader() {

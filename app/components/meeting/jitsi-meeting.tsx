@@ -6,9 +6,6 @@ import { Button } from "@/app/components/ui/button";
 import {
   ArrowLeft,
   Video,
-  VideoOff,
-  Mic,
-  MicOff,
   Maximize,
   Minimize,
   FileText,
@@ -31,7 +28,6 @@ interface JitsiMeetingComponentProps {
 export default function JitsiMeetingComponent({
   roomName,
   userName,
-  userEmail,
   jwt,
   isHost = false,
   onLeaveMeeting,
@@ -165,12 +161,6 @@ export default function JitsiMeetingComponent({
     });
   };
 
-  const handleError = (error: any) => {
-    console.error("Jitsi error:", error);
-    setError("Une erreur est survenue lors de la connexion à la réunion");
-    setIsLoading(false);
-  };
-
   if (error) {
     return (
       <div className="h-screen bg-background w-full flex items-center justify-center">
@@ -271,7 +261,9 @@ export default function JitsiMeetingComponent({
             </div>
             {loadingTimeout && (
               <div className="mt-4 space-y-2">
-                <p className="text-red-600 text-sm">Délai d'attente dépassé</p>
+                <p className="text-red-600 text-sm">
+                  Délai d&apos;attente dépassé
+                </p>
                 <Button onClick={() => window.location.reload()}>
                   Réessayer
                 </Button>

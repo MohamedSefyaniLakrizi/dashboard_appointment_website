@@ -93,7 +93,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
     <Card className="h-full">
       <CardHeader className="pb-1">
         <CardTitle className="text-xs font-medium">
-          Chiffre d'Affaires
+          Chiffre d&apos;Affaires
         </CardTitle>
       </CardHeader>
       <CardContent className="h-[calc(100%-3rem)] p-2">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -32,7 +32,6 @@ import {
 } from "@/app/components/ui/dialog";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { Textarea } from "@/app/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -55,7 +54,6 @@ import {
   AlertCircle,
   ArrowLeft,
   MessageSquare,
-  MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -143,13 +141,7 @@ export default function ClientDetailPage() {
     defaultRate: 300,
   });
 
-  useEffect(() => {
-    if (clientId) {
-      fetchClientData();
-    }
-  }, [clientId]);
-
-  const fetchClientData = async () => {
+  const fetchClientData = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -226,7 +218,13 @@ export default function ClientDetailPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [clientId, router]);
+
+  useEffect(() => {
+    if (clientId) {
+      fetchClientData();
+    }
+  }, [clientId, fetchClientData]);
 
   const handleEditClient = async () => {
     try {

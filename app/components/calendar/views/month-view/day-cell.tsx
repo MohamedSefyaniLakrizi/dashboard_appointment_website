@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { useMemo, useCallback } from "react";
 
 import { cn } from "@/lib/utils";
-import { staggerContainer } from "@/app/components/calendar/animations";
 import { EventListDialog } from "@/app/components/calendar/dialogs/events-list-dialog";
 import { DroppableArea } from "@/app/components/calendar/dnd/droppable-area";
 import {
@@ -18,7 +17,6 @@ import type {
   ICalendarCell,
   IEvent,
 } from "@/app/components/calendar/interfaces";
-import { EventBullet } from "@/app/components/calendar/views/month-view/event-bullet";
 import { EventStatusBadge } from "@/app/components/calendar/views/month-view/event-status-badge";
 import { MonthEventBadge } from "@/app/components/calendar/views/month-view/month-event-badge";
 import { AddEditAppointmentDialog } from "../../dialogs/add-edit-appointment-dialog";
@@ -198,6 +196,7 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
       showDesktopMore,
       showMoreCount,
       renderEventAtPosition,
+      isMobile,
     ]
   );
 

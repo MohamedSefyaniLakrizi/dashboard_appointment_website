@@ -15,11 +15,11 @@ export async function POST(request: NextRequest) {
     console.log(`🔄 Starting email processing at ${now.toISOString()}`);
 
     // Get emails that should be sent now (with 5-minute buffer)
-    const emailsToSend = await (prisma.emailSchedule as any).findMany({
+    const emailsToSend = await prisma.emailSchedule.findMany({
       where: {
         status: EmailStatus.PENDING,
         scheduledFor: {
-          lte: new Date(now.getTime() + 5 * 60 * 1000), // 5 minutes buffer
+          lte: new Date(now.getTime() + 5 * 60 * 1000),
         },
       },
       include: {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         await EmailService.sendScheduledEmail(emailSchedule);
 
         // Mark as sent
-        await (prisma.emailSchedule as any).update({
+        await prisma.emailSchedule.update({
           where: { id: emailSchedule.id },
           data: {
             status: EmailStatus.SENT,
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
         console.error(`❌ Failed to send email ${emailSchedule.id}:`, error);
 
         // Mark as failed
-        await (prisma.emailSchedule as any).update({
+        await prisma.emailSchedule.update({
           where: { id: emailSchedule.id },
           data: {
             status: EmailStatus.FAILED,

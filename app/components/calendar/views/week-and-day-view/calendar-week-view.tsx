@@ -10,8 +10,6 @@ import type { IEvent } from "@/app/components/calendar/interfaces";
 import { CalendarTimeline } from "@/app/components/calendar/views/week-and-day-view/calendar-time-line";
 import { RenderGroupedEvents } from "@/app/components/calendar/views/week-and-day-view/render-grouped-events";
 import { WeekViewMultiDayEventsRow } from "@/app/components/calendar/views/week-and-day-view/week-view-multi-day-events-row";
-import { AlertCircleIcon } from "lucide-react";
-
 interface IProps {
   singleDayEvents: IEvent[];
   multiDayEvents: IEvent[];
@@ -37,7 +35,8 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
         animate={{ opacity: 1, y: 0 }}
       >
         <p>
-          La vue hebdomadaire n'est pas recommandée sur les petits appareils.
+          La vue hebdomadaire n&apos;est pas recommandée sur les petits
+          appareils.
         </p>
         <p>
           Veuillez passer à un appareil de bureau ou utiliser la vue quotidienne

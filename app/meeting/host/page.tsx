@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { Video } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
-import { toast } from "sonner";
 import JitsiMeetingComponent from "@/app/components/meeting/jitsi-meeting";
 import { useSession } from "next-auth/react";
 

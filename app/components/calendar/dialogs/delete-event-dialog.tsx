@@ -1,4 +1,4 @@
-import { TrashIcon, AlertTriangleIcon, InfoIcon } from "lucide-react";
+import { TrashIcon, AlertTriangleIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -74,15 +74,6 @@ export default function DeleteEventDialog({
     setIsOpen(open);
     if (!open) {
       resetDialog();
-    }
-  };
-
-  const handleNext = () => {
-    if (event.isRecurring) {
-      setStep("confirmation");
-    } else {
-      // For non-recurring appointments, go directly to delete
-      deleteEvent();
     }
   };
 

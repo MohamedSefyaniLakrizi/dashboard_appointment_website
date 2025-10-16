@@ -36,8 +36,7 @@ const exportTextPDF = async (htmlContent: string, title: string) => {
   const addText = (
     text: string,
     fontSize: number = 12,
-    isBold: boolean = false,
-    isItalic: boolean = false
+    isBold: boolean = false
   ) => {
     if (!text.trim()) return;
 
@@ -74,7 +73,7 @@ const exportTextPDF = async (htmlContent: string, title: string) => {
 
   // Process elements
   const processElement = (element: Element, listIndex: number = 0): number => {
-    let currentIndex = listIndex;
+    const currentIndex = listIndex;
 
     if (element.tagName === "P") {
       addText(element.textContent || "", 12);
@@ -251,7 +250,8 @@ const exportImagePDF = async (htmlContent: string, title: string) => {
             }
           }
         } catch (e) {
-          // Ignore cross-origin stylesheet errors
+          // Ignore cross-origin stylesheets
+          console.warn("Could not access stylesheet:", e);
         }
       }
     },

@@ -24,9 +24,6 @@ import {
   REMOVE_LIST_COMMAND,
   $isListNode,
   ListNode,
-  $isListItemNode,
-  insertList,
-  removeList,
 } from "@lexical/list";
 import {
   $getSelectionStyleValueForProperty,
@@ -48,14 +45,8 @@ import {
   Quote,
   Undo,
   Redo,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
-  Link,
   Type,
   Palette,
-  Text,
   Minus,
   Plus,
   ChevronDown,
@@ -84,19 +75,8 @@ import {
 } from "@/app/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { LinkPlugin } from "./link-plugin";
-import { TablePlugin } from "./table-plugin";
 
 const LowPriority = 1;
-
-const supportedBlockTypes = new Set([
-  "paragraph",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-]);
 
 const blockTypeToBlockName = {
   h1: "Titre 1",
@@ -115,21 +95,6 @@ function BlockFormatDropDown({
   editor: any;
   blockType: keyof typeof blockTypeToBlockName;
 }) {
-  const getBlockIcon = (type: keyof typeof blockTypeToBlockName) => {
-    switch (type) {
-      case "paragraph":
-        return <Type className="h-4 w-4" />;
-      case "h1":
-        return <Heading1 className="h-4 w-4" />;
-      case "h2":
-        return <Heading2 className="h-4 w-4" />;
-      case "h3":
-        return <Heading3 className="h-4 w-4" />;
-      default:
-        return <Type className="h-4 w-4" />;
-    }
-  };
-
   const formatParagraph = () => {
     editor.update(() => {
       const selection = $getSelection();
@@ -222,7 +187,6 @@ export function ToolbarPlugin() {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [blockType, setBlockType] =
     useState<keyof typeof blockTypeToBlockName>("paragraph");
-  const [isLink, setIsLink] = useState(false);
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
@@ -291,7 +255,6 @@ export function ToolbarPlugin() {
       // Update links
       const node = selection.anchor.getNode();
       const parent = node.getParent();
-      setIsLink(Boolean(parent && parent.getType() === "link"));
 
       if (elementDOM !== null) {
         if ($isListNode(element)) {

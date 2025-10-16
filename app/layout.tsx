@@ -1,6 +1,5 @@
 "use client";
 
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {
@@ -11,7 +10,7 @@ import {
 import { AppSidebar } from "@/app/components/layout/app-sidebar";
 import { Separator } from "./components/ui/separator";
 import { usePathname } from "next/navigation";
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
 import { Toaster } from "sonner";
 const geistSans = Geist({
   variable: "--font-geist-sans",

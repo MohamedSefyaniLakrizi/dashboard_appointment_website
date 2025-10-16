@@ -1,10 +1,7 @@
 "use client";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import {
-  $createTableNodeWithDimensions,
-  INSERT_TABLE_COMMAND,
-} from "@lexical/table";
+import { INSERT_TABLE_COMMAND } from "@lexical/table";
 import { useState } from "react";
 import { Button } from "@/app/components/ui/button";
 import {

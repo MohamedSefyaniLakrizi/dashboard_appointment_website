@@ -1,6 +1,5 @@
 import { getClients } from "@/lib/actions/clients";
 import { DataTable } from "@/app/components/clients/data-table";
-import { AddClientDialog } from "@/app/components/clients/add-client-dialog";
 
 export default async function ClientsPage() {
   const result = await getClients();

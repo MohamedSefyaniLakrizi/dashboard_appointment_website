@@ -4,13 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Video, User, Minimize, Maximize } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/ui/card";
-import JitsiMeetingComponent from "@/app/components/meeting/jitsi-meeting";
+import { Card, CardContent } from "@/app/components/ui/card";
 import { JaaSMeeting } from "@jitsi/react-sdk";
 
 interface JitsiTokenResponse {
@@ -30,7 +24,6 @@ interface MeetingInfo {
 }
 
 export default function ClientMeetingPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [meetingInfo, setMeetingInfo] = useState<MeetingInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -334,7 +327,7 @@ export default function ClientMeetingPage() {
                 Avant de rejoindre :
               </h4>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Assurez-vous d'être dans un endroit calme</li>
+                <li>• Assurez-vous d&apos;être dans un endroit calme</li>
                 <li>• Vérifiez votre connexion internet</li>
                 <li>• Testez votre caméra et microphone</li>
               </ul>

@@ -1,14 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  format,
-  setHours,
-  setMinutes,
-  parse,
-  addMonths,
-  addYears,
-  addDays,
-} from "date-fns";
-import { type ReactNode, useEffect, useState } from "react";
+import { format, setHours, setMinutes, addMonths, addYears } from "date-fns";
+import { type ReactNode, useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/app/components/ui/button";
@@ -55,7 +47,7 @@ import {
   type TAppointmentFormSchema,
 } from "@/app/components/calendar/schemas";
 import { AddClientDialog } from "@/app/components/clients/add-client-dialog";
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fr } from "date-fns/locale";
 import {
@@ -79,7 +71,6 @@ export function AddEditAppointmentDialog({
   const { addEvent, updateEvent, users, isLoading } = useCalendar();
   const [clients, setClients] = useState<IUser[]>([]);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
-  const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
 
   const isEditing = !!event;
 
@@ -87,17 +78,9 @@ export function AddEditAppointmentDialog({
     setClients(users);
   }, [users]);
 
-  // Load invoice when editing an appointment
-  useEffect(() => {
-    if (isEditing && event && isOpen) {
-      loadInvoice();
-    }
-  }, [isEditing, event, isOpen]);
-
-  const loadInvoice = async () => {
+  const loadInvoice = useCallback(async () => {
     if (!event) return;
 
-    setIsLoadingInvoice(true);
     try {
       const all = await getInvoices();
       const found = all.find((inv) => inv.appointment?.id === event.id);
@@ -105,10 +88,15 @@ export function AddEditAppointmentDialog({
     } catch (error) {
       console.error("Error loading invoice:", error);
       toast.error("Erreur lors du chargement de la facture");
-    } finally {
-      setIsLoadingInvoice(false);
     }
-  };
+  }, [event]);
+
+  // Load invoice when editing an appointment
+  useEffect(() => {
+    if (isEditing && event && isOpen) {
+      loadInvoice();
+    }
+  }, [isEditing, event, isOpen, loadInvoice]);
 
   // Helper function to format time string from date
   const formatTimeString = (date: Date) => {
@@ -384,7 +372,7 @@ export function AddEditAppointmentDialog({
                   Mode de modification
                 </FormLabel>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Ce rendez-vous fait partie d'une série récurrente. Que
+                  Ce rendez-vous fait partie d&apos;une série récurrente. Que
                   souhaitez-vous modifier ?
                 </p>
                 <RadioGroup

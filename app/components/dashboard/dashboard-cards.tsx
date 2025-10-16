@@ -1,7 +1,6 @@
 "use client";
 
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import {
   Clock,
   Video,
@@ -20,7 +19,6 @@ import {
 } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Badge } from "@/app/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
 import {
   TodayAppointment,
   RecentActivity,
@@ -64,7 +62,9 @@ export function TodaySchedule({ appointments }: TodayScheduleProps) {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm">
           <Calendar className="h-4 w-4" />
-          <span className="hidden sm:inline">Planning d'Aujourd'hui</span>
+          <span className="hidden sm:inline">
+            Planning d&apos;Aujourd&apos;hui
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="h-[calc(100%-4rem)] overflow-auto">
@@ -297,10 +297,7 @@ interface QuickActionsProps {
   onCreateClient?: () => void;
 }
 
-export function QuickActionsCard({
-  onCreateAppointment,
-  onCreateClient,
-}: QuickActionsProps) {
+export function QuickActionsCard() {
   return (
     <Card className="h-full py-3 gap-3">
       <CardHeader className="pb-2">

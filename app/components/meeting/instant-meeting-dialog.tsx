@@ -154,18 +154,6 @@ export function InstantMeetingDialog({
     }
   };
 
-  const getDurationLabel = (minutes: number): string => {
-    if (minutes < 60) {
-      return `${minutes} minutes`;
-    }
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    if (remainingMinutes === 0) {
-      return `${hours} heure${hours > 1 ? "s" : ""}`;
-    }
-    return `${hours}h${remainingMinutes}m`;
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

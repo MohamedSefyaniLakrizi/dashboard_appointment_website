@@ -24,7 +24,6 @@ import {
   User,
   ArrowLeft,
   Search,
-  Filter,
   SortAsc,
 } from "lucide-react";
 import { toast } from "sonner";

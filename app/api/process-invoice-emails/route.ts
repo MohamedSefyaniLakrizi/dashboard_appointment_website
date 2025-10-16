@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Get all pending INVOICE_DELIVERY emails that are scheduled for now or earlier
     const pendingEmails = await prisma.emailSchedule.findMany({
@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
         );
 
         if (response.ok) {
-          const result = await response.json();
           console.log(
             `✅ Successfully sent invoice email for appointment ${emailSchedule.appointmentId}`
           );

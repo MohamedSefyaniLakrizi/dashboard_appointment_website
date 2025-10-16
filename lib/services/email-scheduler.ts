@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { addDays, subDays, subHours, addHours } from "date-fns";
+import { subHours, addHours } from "date-fns";
 import { EmailType, EmailStatus } from "@prisma/client";
 
 export class EmailScheduler {

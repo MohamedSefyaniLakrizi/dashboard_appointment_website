@@ -20,11 +20,9 @@ import {
 import {
   FileText,
   Plus,
-  Calendar,
   User,
   ArrowLeft,
   Search,
-  Filter,
   SortAsc,
   Link,
 } from "lucide-react";

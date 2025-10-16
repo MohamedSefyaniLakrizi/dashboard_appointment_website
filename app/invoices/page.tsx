@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import jsPDF from "jspdf";
 import {
   generateInvoicePdf as generatePdf,
   generateInvoiceFilename,
@@ -516,7 +515,7 @@ export default function InvoicesPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="dueDate">Date d'échéance</Label>
+                  <Label htmlFor="dueDate">Date d&apos;échéance</Label>
                   <Input
                     id="dueDate"
                     type="date"

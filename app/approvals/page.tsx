@@ -44,9 +44,7 @@ import {
   Mail,
   Phone,
   UserCheck,
-  UserX,
   CalendarCheck,
-  CalendarX,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -285,7 +283,7 @@ export default function ApprovalsPage() {
           <CardContent>
             <div className="text-2xl font-bold">{pendingClients.length}</div>
             <p className="text-xs text-muted-foreground">
-              En attente d'approbation
+              En attente d&apos;approbation
             </p>
           </CardContent>
         </Card>
@@ -301,7 +299,7 @@ export default function ApprovalsPage() {
               {pendingAppointments.length}
             </div>
             <p className="text-xs text-muted-foreground">
-              En attente d'approbation
+              En attente d&apos;approbation
             </p>
           </CardContent>
         </Card>
@@ -425,7 +423,7 @@ export default function ApprovalsPage() {
           </Table>
           {pendingClients.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              Aucun client en attente d'approbation
+              Aucun client en attente d&apos;approbation
             </div>
           )}
         </CardContent>
@@ -576,7 +574,7 @@ export default function ApprovalsPage() {
           </Table>
           {pendingAppointments.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              Aucun rendez-vous en attente d'approbation
+              Aucun rendez-vous en attente d&apos;approbation
             </div>
           )}
         </CardContent>

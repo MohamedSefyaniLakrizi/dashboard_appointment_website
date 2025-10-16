@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, Edit2, NotebookText, Trash2 } from "lucide-react";
+import { ArrowUpDown, NotebookText } from "lucide-react";
 
 import { Button } from "@/app/components/ui/button";
 import { Checkbox } from "@/app/components/ui/checkbox";
@@ -36,12 +36,6 @@ import { AddClientDialog } from "./add-client-dialog";
 import { EditClientDialog } from "./edit-client-dialog";
 import { DeleteClientDialog } from "./delete-client-dialog";
 import { useRouter } from "next/navigation";
-
-// Hook for navigation within cell components
-function useClientNavigation() {
-  const router = useRouter();
-  return (clientId: string) => router.push(`/clients/${clientId}`);
-}
 
 // Clickable name component
 function ClickableName({
@@ -231,7 +225,6 @@ interface DataTableProps {
 }
 
 export function DataTable({ data }: DataTableProps) {
-  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

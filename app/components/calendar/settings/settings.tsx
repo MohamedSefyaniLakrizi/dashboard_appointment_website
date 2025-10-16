@@ -23,7 +23,6 @@ import {
 } from "@/app/components/ui/dropdown-menu";
 import { Switch } from "@/app/components/ui/switch";
 import { useCalendar } from "@/app/components/calendar/contexts/calendar-context";
-import type { TCalendarView } from "@/app/components/calendar/types";
 import { useDragDrop } from "@/app/components/calendar/contexts/dnd-context";
 
 export function Settings() {
@@ -32,8 +31,6 @@ export function Settings() {
     setBadgeVariant,
     use24HourFormat,
     toggleTimeFormat,
-    view,
-    setView,
     agendaModeGroupBy,
     setAgendaModeGroupBy,
   } = useCalendar();
@@ -74,7 +71,7 @@ export function Settings() {
           </DropdownMenuItem>
           <DropdownMenuItem>
             Afficher la boîte de dialogue de confirmation lors du dépôt
-            d'événements
+            d&apos;événements
             <DropdownMenuShortcut>
               <Switch
                 icon={

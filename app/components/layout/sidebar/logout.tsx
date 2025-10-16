@@ -2,7 +2,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/app/components/ui/sidebar";
 import { LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";

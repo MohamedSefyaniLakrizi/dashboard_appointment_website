@@ -7,7 +7,6 @@ import { Input } from "@/app/components/ui/input";
 import { Card, CardContent } from "@/app/components/ui/card";
 import {
   Save,
-  FileText,
   Trash2,
   User,
   Calendar,
@@ -84,7 +83,6 @@ export default function NoteEditor({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState<any>(null);
   const [htmlContent, setHtmlContent] = useState<string>("");
-  const [editorRef, setEditorRef] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -284,7 +282,7 @@ export default function NoteEditor({
         clearTimeout(autoSaveTimeoutRef.current);
       }
     };
-  }, [contentString, autoSave]);
+  }, [contentString, autoSave, content]);
 
   // Auto-save title changes
   useEffect(() => {
@@ -323,7 +321,7 @@ export default function NoteEditor({
       setAutoSaveStatus("idle");
       setHasUnsavedChanges(false);
     }
-  }, [note?.id]);
+  }, [note?.id, content, note, title]);
 
   const handleSave = async () => {
     if (!content) return;
@@ -432,9 +430,6 @@ export default function NoteEditor({
     (editorContent: { html: string; json: any; editor?: any }) => {
       setContent(editorContent.json);
       setHtmlContent(editorContent.html);
-      if (editorContent.editor) {
-        setEditorRef(editorContent.editor);
-      }
     },
     []
   );

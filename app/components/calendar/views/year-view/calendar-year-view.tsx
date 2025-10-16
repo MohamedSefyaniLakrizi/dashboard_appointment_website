@@ -9,7 +9,6 @@ import {
   getAppointmentVariant,
 } from "@/app/components/calendar/helpers";
 import type { IEvent } from "@/app/components/calendar/interfaces";
-import { EventBullet } from "@/app/components/calendar/views/month-view/event-bullet";
 import { EventStatusBadge } from "@/app/components/calendar/views/month-view/event-status-badge";
 
 interface IProps {

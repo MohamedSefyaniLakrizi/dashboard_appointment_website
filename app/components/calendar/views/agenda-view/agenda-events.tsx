@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import type { FC } from "react";
 import {
   Avatar,
@@ -18,7 +18,6 @@ import { useCalendar } from "@/app/components/calendar/contexts/calendar-context
 import { EventDetailsDialog } from "@/app/components/calendar/dialogs/event-details-dialog";
 import {
   formatTime,
-  getBgColor,
   getColorClass,
   getEventsForMonth,
   getFirstLetters,
@@ -26,7 +25,6 @@ import {
   getAppointmentVariant,
   getAppointmentBgClasses,
 } from "@/app/components/calendar/helpers";
-import { EventBullet } from "@/app/components/calendar/views/month-view/event-bullet";
 import { EventStatusBadge } from "@/app/components/calendar/views/month-view/event-status-badge";
 
 export const AgendaEvents: FC = () => {

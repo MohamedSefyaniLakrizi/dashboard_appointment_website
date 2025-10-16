@@ -31,10 +31,6 @@ export function generateInvoicePdf(invoice: InvoiceData): Buffer {
   const createdAt = format(new Date(invoice.createdAt), "dd/MM/yyyy", {
     locale: fr,
   });
-  const dueDate = invoice.dueDate
-    ? format(new Date(invoice.dueDate), "dd/MM/yyyy", { locale: fr })
-    : "-";
-
   // Create PDF
   const doc = new jsPDF();
   doc.setFont("times");
