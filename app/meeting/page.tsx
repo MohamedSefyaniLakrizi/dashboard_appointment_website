@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 import { Video, User, Minimize, Maximize } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
@@ -23,7 +23,7 @@ interface MeetingInfo {
   userEmail?: string;
 }
 
-export default function ClientMeetingPage() {
+function ClientMeetingPageContent() {
   const searchParams = useSearchParams();
   const [meetingInfo, setMeetingInfo] = useState<MeetingInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -355,4 +355,12 @@ export default function ClientMeetingPage() {
   }
 
   return null;
+}
+
+export default function MeetingPage() {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <ClientMeetingPageContent />
+    </Suspense>
+  );
 }

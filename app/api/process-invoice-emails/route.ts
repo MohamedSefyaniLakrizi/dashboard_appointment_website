@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function POST() {
   try {
     // Get all pending INVOICE_DELIVERY emails that are scheduled for now or earlier
-    const pendingEmails = await prisma.emailSchedule.findMany({
+    const pendingEmails = await (prisma.emailSchedule as any).findMany({
       where: {
         emailType: "INVOICE_DELIVERY",
         status: "PENDING",
@@ -135,9 +135,4 @@ export async function POST() {
       { status: 500 }
     );
   }
-}
-
-// Allow GET for testing
-export async function GET(request: NextRequest) {
-  return POST(request);
 }

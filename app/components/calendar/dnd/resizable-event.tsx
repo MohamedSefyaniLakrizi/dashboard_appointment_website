@@ -90,7 +90,7 @@ export function ResizableEvent({
         end: format(newEnd, use24HourFormat ? "HH:mm" : "h:mm a"),
       });
 
-      updateEvent({
+      updateEvent(event.id, {
         ...event,
         startDate: newStart.toISOString(),
         endDate: newEnd.toISOString(),

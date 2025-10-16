@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     console.log(`🔄 Starting email processing at ${now.toISOString()}`);
 
     // Get emails that should be sent now (with 5-minute buffer)
-    const emailsToSend = await prisma.emailSchedule.findMany({
+    const emailsToSend = await (prisma.emailSchedule as any).findMany({
       where: {
         status: EmailStatus.PENDING,
         scheduledFor: {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Video } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
@@ -24,7 +24,7 @@ interface MeetingInfo {
   userEmail?: string;
 }
 
-export default function HostMeetingPage() {
+function HostMeetingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -228,5 +228,13 @@ export default function HostMeetingPage() {
         showNotes={isScheduledAppointment}
       />
     </div>
+  );
+}
+
+export default function HostMeetingPage() {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <HostMeetingPageContent />
+    </Suspense>
   );
 }

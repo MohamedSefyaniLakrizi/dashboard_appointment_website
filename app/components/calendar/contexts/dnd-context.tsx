@@ -169,7 +169,7 @@ export function DndProvider({
           startDate: newStartDate.toISOString(),
           endDate: newEndDate.toISOString(),
         };
-        updateEvent(updatedEvent);
+        updateEvent(updatedEvent.id, updatedEvent);
         toast.success("Rendez-vous mis à jour avec succès");
       } catch {
         toast.error("Échec de la mise à jour du rendez-vous");

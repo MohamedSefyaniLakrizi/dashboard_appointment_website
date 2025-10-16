@@ -5,13 +5,16 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: clientId } = await params;
 
     const appointments = await prisma.appointment.findMany({
-      where: { clientId },
+      where: {
+        clientId,
+        confirmed: true,
+      },
       orderBy: { startTime: "desc" },
     });
 
