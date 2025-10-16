@@ -6,6 +6,14 @@ export default withAuth(
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token;
 
+    // Debug logging for Vercel logs
+    console.log(`🔍 Middleware: ${pathname}`);
+    console.log(`🔑 Token exists: ${!!token}`);
+    if (token) {
+      console.log(`📧 Token email: ${token.email}`);
+      console.log(`⏰ Token error: ${token.error || "none"}`);
+    }
+
     // Create the response
     let response = NextResponse.next();
 
@@ -27,21 +35,15 @@ export default withAuth(
         "same-origin-allow-popups"
       );
 
-      // Set SameSite=None for cross-site cookies
-      const cookieHeader = response.headers.get("Set-Cookie") || "";
-      if (cookieHeader) {
-        const updatedCookie = cookieHeader
-          .replace(/SameSite=\w+/gi, "SameSite=None")
-          .concat("; Secure");
-        response.headers.set("Set-Cookie", updatedCookie);
-      }
-
       // Check if this is the host route - require authentication
       if (pathname.startsWith("/meeting/host")) {
         if (!token) {
+          console.log(`🚫 Redirecting to login from meeting/host: no token`);
           const loginUrl = new URL("/login", req.url);
           loginUrl.searchParams.set("callbackUrl", req.url);
           return NextResponse.redirect(loginUrl);
+        } else {
+          console.log(`✅ Allowing access to meeting/host with token`);
         }
       }
 
@@ -51,19 +53,35 @@ export default withAuth(
 
     // Handle direct /meeting route - allow public access
     if (pathname === "/meeting") {
+      console.log(`🌐 Allowing public access to /meeting`);
       return response;
     }
 
     // Allow access to login page and auth routes
     if (pathname.startsWith("/login") || pathname.startsWith("/api/auth")) {
+      console.log(`🔓 Allowing access to auth routes: ${pathname}`);
       return response;
     }
 
     // Redirect to login if no token and trying to access protected route
     if (!token) {
+      console.log(`🚫 No token, redirecting to login from: ${pathname}`);
       const loginUrl = new URL("/login", req.url);
       loginUrl.searchParams.set("callbackUrl", req.url);
       return NextResponse.redirect(loginUrl);
+    }
+
+    // User has token - allow access to protected route
+    console.log(`✅ Token found, allowing access to: ${pathname}`);
+
+    // Log authorized email check
+    const authorizedEmail = process.env.AUTHORIZED_GOOGLE_EMAIL;
+    console.log(`🎯 Authorized email: ${authorizedEmail}`);
+
+    if (token.email !== authorizedEmail) {
+      console.log(`❌ UNAUTHORIZED: ${token.email} is not ${authorizedEmail}`);
+    } else {
+      console.log(`✅ AUTHORIZED: ${token.email} matches authorized email`);
     }
 
     // Add any role-based access control here if needed
@@ -77,6 +95,11 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
+        const { pathname } = req.nextUrl;
+        console.log(
+          `🔐 Authorized callback: ${pathname}, hasToken: ${!!token}`
+        );
+
         // Always return true here, let the middleware function handle the logic
         return true;
       },

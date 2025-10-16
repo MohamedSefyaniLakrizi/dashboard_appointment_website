@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export class EmailService {
   private static generateAppointmentLink(appointment: any): string {
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXTAUTH_URL;
 
     if (appointment.format === "ONLINE" && appointment.clientJwt) {
       // For online appointments, link directly to the meeting

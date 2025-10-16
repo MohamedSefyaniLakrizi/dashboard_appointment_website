@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate meeting URLs
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXTAUTH_URL;
     const hostJoinUrl = hostJwt
       ? `${baseUrl}/meeting/host?jwt=${hostJwt}&appointmentId=${appointment.id}&role=host&title=Rendez Vous&room=Rendez Vous&user=Malika Lkhabir`
       : null;
