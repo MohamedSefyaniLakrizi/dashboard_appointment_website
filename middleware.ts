@@ -11,7 +11,16 @@ export default withAuth(
     console.log(`🔑 Token exists: ${!!token}`);
     if (token) {
       console.log(`📧 Token email: ${token.email}`);
-      console.log(`⏰ Token error: ${token.error || "none"}`);
+      console.log(`⏰ Token expires at: ${token.expiresAt}`);
+      console.log(`❌ Token error: ${token.error || "none"}`);
+    }
+
+    // If token has error, force re-authentication
+    if (token?.error === "RefreshAccessTokenError") {
+      console.log(`🔄 Token refresh error, redirecting to login`);
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("error", "SessionExpired");
+      return NextResponse.redirect(loginUrl);
     }
 
     // Create the response

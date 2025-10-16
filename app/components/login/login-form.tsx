@@ -22,13 +22,14 @@ export function LoginForm({
   const searchParams = useSearchParams();
   const router = useRouter();
   const error = searchParams.get("error");
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   // Redirect to home if already authenticated
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/");
+      router.push(callbackUrl);
     }
-  }, [status, router]);
+  }, [status, router, callbackUrl]);
 
   return (
     <div className={cn("flex flex-col gap-6 w-96 mx-3", className)} {...props}>
@@ -80,7 +81,7 @@ export function LoginForm({
                   disabled={status === "loading"}
                   onClick={(e) => {
                     e.preventDefault();
-                    signIn("google");
+                    signIn("google", { callbackUrl });
                   }}
                 >
                   <GoogleIcon />

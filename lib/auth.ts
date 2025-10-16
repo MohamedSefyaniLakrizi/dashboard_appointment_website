@@ -45,18 +45,8 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 10 * 365 * 24 * 60 * 60, // 10 years in seconds
   },
-  cookies: {
-    sessionToken: {
-      name: "next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        path: "/",
-        maxAge: 10 * 365 * 24 * 60 * 60, // 10 years in seconds
-      },
-    },
-  },
+  // Remove custom cookie configuration to use NextAuth defaults
+  // This prevents cookie name mismatches between client and server
   callbacks: {
     async signIn({ user }) {
       // Only allow the authorized email to sign in
@@ -139,5 +129,5 @@ export const authOptions: NextAuthOptions = {
     error: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: true, // Set to false in production
+  debug: process.env.NODE_ENV === "development", // Only enable debug in development
 };
