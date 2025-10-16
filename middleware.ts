@@ -67,7 +67,11 @@ export default withAuth(
     }
 
     // Allow access to login page and auth routes
-    if (pathname.startsWith("/login") || pathname.startsWith("/api/auth")) {
+    if (
+      pathname.startsWith("/login") ||
+      pathname.startsWith("/api/auth") ||
+      pathname.startsWith("/api/cron")
+    ) {
       console.log(`🔓 Allowing access to auth routes: ${pathname}`);
       return response;
     }
