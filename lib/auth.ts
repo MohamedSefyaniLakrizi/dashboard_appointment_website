@@ -50,10 +50,9 @@ export const authOptions: NextAuthOptions = {
       name: "next-auth.session-token",
       options: {
         httpOnly: true,
-        sameSite: "None",
-        secure: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
         path: "/",
-        //secure: process.env.NODE_ENV === "production",
         maxAge: 10 * 365 * 24 * 60 * 60, // 10 years in seconds
       },
     },
@@ -63,11 +62,16 @@ export const authOptions: NextAuthOptions = {
       // Only allow the authorized email to sign in
       const authorizedEmail = process.env.AUTHORIZED_GOOGLE_EMAIL;
 
+      console.log(
+        `Sign-in attempt from: ${user.email}, authorized: ${authorizedEmail}`
+      );
+
       if (user.email === authorizedEmail) {
         return true;
       } else {
         console.log(`Unauthorized sign-in attempt from: ${user.email}`);
-        return false; // Deny access
+        // Return error URL to show user the error message
+        return `/login?error=unauthorized&email=${encodeURIComponent(user.email || "")}`;
       }
     },
     async jwt({ token, account }) {
@@ -129,6 +133,10 @@ export const authOptions: NextAuthOptions = {
 
       return session;
     },
+  },
+  pages: {
+    signIn: "/login",
+    error: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
