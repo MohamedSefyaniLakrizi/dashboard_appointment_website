@@ -4,6 +4,14 @@ import { EmailService } from "@/lib/services/email-service";
 import { EmailStatus } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
+  return processEmails(request);
+}
+
+export async function GET(request: NextRequest) {
+  return processEmails(request);
+}
+
+async function processEmails(request: NextRequest) {
   try {
     // Verify cron secret (for security)
     const authHeader = request.headers.get("authorization");
