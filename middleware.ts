@@ -67,11 +67,7 @@ export default withAuth(
     }
 
     // Allow access to login page and auth routes
-    if (
-      pathname.startsWith("/login") ||
-      pathname.startsWith("/api/auth") ||
-      pathname.startsWith("/api/cron")
-    ) {
+    if (pathname.startsWith("/login") || pathname.startsWith("/api/auth")) {
       console.log(`🔓 Allowing access to auth routes: ${pathname}`);
       return response;
     }
@@ -125,12 +121,13 @@ export const config = {
     /*
      * Match all request paths except for:
      * - api/auth/* (NextAuth API routes)
+     * - api/cron/* (Cron job endpoints - public)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (images, etc.)
      * - debug page (optional, remove in production)
      */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$|debug).*)",
+    "/((?!api/auth|api/cron|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$|debug).*)",
   ],
 };
