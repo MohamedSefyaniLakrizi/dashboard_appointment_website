@@ -29,10 +29,12 @@ interface EventListDialogProps {
 export function EventListDialog({
   date,
   events,
-  maxVisibleEvents = 3,
+  maxVisibleEvents = 1,
   children,
 }: EventListDialogProps) {
-  const cellEvents = events;
+  const cellEvents = [...events].sort(
+    (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+  );
   const hiddenEventsCount = Math.max(cellEvents.length - maxVisibleEvents, 0);
   const { badgeVariant, use24HourFormat } = useCalendar();
 
@@ -94,7 +96,8 @@ export function EventListDialog({
                   <div className="flex justify-between items-center w-full">
                     <p className="text-sm font-medium">{event.title}</p>
                     <p className="text-xs">
-                      {formatTime(event.startDate, use24HourFormat)}
+                      {formatTime(event.startDate, use24HourFormat)} -{" "}
+                      {formatTime(event.endDate, use24HourFormat)}
                     </p>
                   </div>
                 </div>

@@ -30,6 +30,11 @@ interface ICalendarContext {
   filterEventsBySelectedUser: (userId: IUser["id"] | "all") => void;
   users: IUser[];
   events: IEvent[];
+  weeklyAvailability: any[];
+  dateAvailability: any[];
+  getAvailabilityForDate: (
+    date: Date
+  ) => { startTime: string; endTime: string }[];
   addEvent: (appointmentData: {
     clientId: string;
     startTime: Date;
@@ -85,12 +90,16 @@ export function CalendarProvider({
   children,
   users,
   events,
+  weeklyAvailability = [],
+  dateAvailability = [],
   badge = "colored",
   view = "day",
 }: {
   children: React.ReactNode;
   users: IUser[];
   events: IEvent[];
+  weeklyAvailability?: any[];
+  dateAvailability?: any[];
   view?: TCalendarView;
   badge?: "dot" | "colored";
 }) {
@@ -388,6 +397,48 @@ export function CalendarProvider({
     setSelectedUserId("all");
   };
 
+  // Get availability for a specific date
+  const getAvailabilityForDate = (date: Date) => {
+    const dateStr = new Date(date);
+    dateStr.setHours(0, 0, 0, 0);
+
+    // Check for date-specific availability first
+    const dateOverrides = dateAvailability.filter((d) => {
+      const availDate = new Date(d.date);
+      availDate.setHours(0, 0, 0, 0);
+      return availDate.getTime() === dateStr.getTime();
+    });
+
+    if (dateOverrides.length > 0) {
+      // Has specific override
+      const hasClosedMarker = dateOverrides.some(
+        (slot) => slot.startTime === null && slot.endTime === null
+      );
+
+      if (hasClosedMarker) {
+        return []; // Closed day
+      }
+
+      return dateOverrides
+        .filter((slot) => slot.startTime && slot.endTime)
+        .map((slot) => ({
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        }));
+    }
+
+    // Fall back to weekly template
+    const dayOfWeek = (date.getDay() + 6) % 7; // Convert Sunday=0 to Monday=0
+    const weeklySlots = weeklyAvailability.filter(
+      (w) => w.weekday === dayOfWeek
+    );
+
+    return weeklySlots.map((slot) => ({
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+    }));
+  };
+
   const value = {
     selectedDate,
     setSelectedDate: handleSelectDate,
@@ -400,6 +451,9 @@ export function CalendarProvider({
     filterEventsBySelectedFormats,
     filterEventsBySelectedUser,
     events: filteredEvents,
+    weeklyAvailability,
+    dateAvailability,
+    getAvailabilityForDate,
     view: currentView,
     use24HourFormat,
     toggleTimeFormat,

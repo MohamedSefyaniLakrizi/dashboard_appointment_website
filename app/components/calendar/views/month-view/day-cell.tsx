@@ -3,7 +3,7 @@
 import { cva } from "class-variance-authority";
 import { isToday, startOfDay, isSunday, isSameMonth } from "date-fns";
 import { motion } from "framer-motion";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { EventListDialog } from "@/app/components/calendar/dialogs/events-list-dialog";
@@ -20,8 +20,10 @@ import type {
 import { EventStatusBadge } from "@/app/components/calendar/views/month-view/event-status-badge";
 import { MonthEventBadge } from "@/app/components/calendar/views/month-view/month-event-badge";
 import { AddEditAppointmentDialog } from "../../dialogs/add-edit-appointment-dialog";
+import { AvailabilityEditDialog } from "../../dialogs/availability-edit-dialog";
 import { Button } from "@/app/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Clock, Edit } from "lucide-react";
+import { useCalendar } from "@/app/components/calendar/contexts/calendar-context";
 
 interface IProps {
   cell: ICalendarCell;
@@ -50,11 +52,13 @@ export const dayCellVariants = cva("text-white", {
   },
 });
 
-const MAX_VISIBLE_EVENTS = 3;
+const MAX_VISIBLE_EVENTS = 1;
 
 export function DayCell({ cell, events, eventPositions }: IProps) {
   const { day, currentMonth, date } = cell;
+  const { getAvailabilityForDate } = useCalendar();
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const [availabilityDialogOpen, setAvailabilityDialogOpen] = useState(false);
 
   // Memoize cellEvents and currentCellMonth for performance
   const { cellEvents, currentCellMonth } = useMemo(() => {
@@ -64,6 +68,17 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
     );
     return { cellEvents, currentCellMonth };
   }, [date, events, eventPositions]);
+
+  // Get availability for this date
+  const availabilitySlots = useMemo(() => {
+    return getAvailabilityForDate(date);
+  }, [date, getAvailabilityForDate]);
+
+  // Handle availability slot click
+  const handleAvailabilityClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAvailabilityDialogOpen(true);
+  }, []);
 
   // Memoize event rendering for each position with animation
   const renderEventAtPosition = useCallback(
@@ -124,12 +139,12 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
       <motion.div
         className={cn(
           "flex h-full lg:min-h-[10rem] flex-col gap-1 border-l border-t",
-          isSunday(date) && "border-l-0"
+          date.getDay() === 1 && "border-l-0" // Monday (1) is now the first day
         )}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <DroppableArea date={date} className="w-full h-full py-2">
+        <DroppableArea date={date} className="w-full h-full py-2 flex flex-col">
           <motion.span
             className={cn(
               "h-6 px-1 text-xs font-semibold lg:px-2",
@@ -143,12 +158,12 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
 
           <motion.div
             className={cn(
-              "flex h-fit gap-1 px-2 mt-1 lg:h-[94px] lg:flex-col lg:gap-2 lg:px-0",
+              "flex flex-1 gap-1 px-2 mt-1 lg:h-[94px] lg:flex-col lg:gap-2 lg:px-0",
               !currentMonth && "opacity-50"
             )}
           >
             {cellEvents.length === 0 && !isMobile ? (
-              <div className="w-full h-full flex justify-center items-center group">
+              <div className="w-full h-full flex flex-col justify-center items-center group space-y-1">
                 <AddEditAppointmentDialog startDate={date}>
                   <Button
                     variant="ghost"
@@ -160,7 +175,7 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
                 </AddEditAppointmentDialog>
               </div>
             ) : (
-              [0, 1, 2].map(renderEventAtPosition)
+              [0].map(renderEventAtPosition)
             )}
           </motion.div>
 
@@ -184,6 +199,68 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
               <EventListDialog date={date} events={cellEvents} />
             </motion.div>
           )}
+
+          {/* Show availability or closed status */}
+          {currentMonth &&
+            (availabilitySlots.length > 0 ||
+              availabilitySlots.length === 0) && (
+              <motion.div
+                className="px-2 pb-1 space-y-0.5 cursor-pointer hover:bg-accent/20 rounded self-end text-right"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onClick={handleAvailabilityClick}
+              >
+                {availabilitySlots.length === 0 ? (
+                  // Day is closed
+                  <div className="space-y-0.5">
+                    <div className="text-[9px] bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 px-1.5 py-0.5 rounded-sm border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors flex items-center justify-end gap-1">
+                      <Clock className="h-2 w-2" />
+                      <span>Fermé</span>
+                    </div>
+                  </div>
+                ) : cellEvents.length > 0 ? (
+                  <>
+                    <div className="flex flex-wrap gap-x-2 gap-y-0.5 justify-end">
+                      {availabilitySlots.slice(0, 3).map((slot, idx) => (
+                        <div
+                          key={idx}
+                          className="text-[9px] bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded-sm border border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900 transition-colors flex items-center justify-end gap-1"
+                        >
+                          <Clock className="h-2 w-2" />
+                          <span>
+                            {slot.startTime}-{slot.endTime}
+                          </span>
+                        </div>
+                      ))}
+                      {availabilitySlots.length > 3 && (
+                        <div className="text-[9px] text-muted-foreground hover:text-foreground transition-colors">
+                          +{availabilitySlots.length - 3}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-0.5">
+                    {availabilitySlots.slice(0, 2).map((slot, idx) => (
+                      <div
+                        key={idx}
+                        className="text-[9px] bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded-sm border border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900 transition-colors flex items-center justify-end gap-1"
+                      >
+                        <Clock className="h-2 w-2" />
+                        <span>
+                          {slot.startTime}-{slot.endTime}
+                        </span>
+                      </div>
+                    ))}
+                    {availabilitySlots.length > 2 && (
+                      <div className="text-[9px] bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded-sm border border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900 transition-colors text-right">
+                        +{availabilitySlots.length - 2} autres
+                      </div>
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            )}
         </DroppableArea>
       </motion.div>
     ),
@@ -202,11 +279,27 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
 
   if (isMobile && currentMonth) {
     return (
-      <EventListDialog date={date} events={cellEvents}>
-        {cellContent}
-      </EventListDialog>
+      <>
+        <EventListDialog date={date} events={cellEvents}>
+          {cellContent}
+        </EventListDialog>
+        <AvailabilityEditDialog
+          open={availabilityDialogOpen}
+          onOpenChange={setAvailabilityDialogOpen}
+          date={date}
+        />
+      </>
     );
   }
 
-  return cellContent;
+  return (
+    <>
+      {cellContent}
+      <AvailabilityEditDialog
+        open={availabilityDialogOpen}
+        onOpenChange={setAvailabilityDialogOpen}
+        date={date}
+      />
+    </>
+  );
 }

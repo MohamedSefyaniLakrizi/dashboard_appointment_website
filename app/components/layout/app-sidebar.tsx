@@ -9,6 +9,7 @@ import {
   Video,
   Receipt,
   UserCheck,
+  Clock,
 } from "lucide-react";
 
 import {
@@ -85,6 +86,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Calendar />
               Calendrier
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={`truncate font-medium flex items-center cursor-pointer ${
+                pathname === "/availability"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : ""
+              }`}
+              onClick={(e) => goTo(e, "/availability")}
+            >
+              <Clock />
+              Disponibilité
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>

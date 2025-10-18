@@ -16,11 +16,22 @@ interface IProps {
 }
 
 export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
-  const { selectedDate, use24HourFormat } = useCalendar();
+  const { selectedDate, use24HourFormat, getAvailabilityForDate } =
+    useCalendar();
 
   const weekStart = startOfWeek(selectedDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
+
+  // Helper function to check if a time slot is available
+  const isTimeSlotAvailable = (day: Date, hour: number, minute: number) => {
+    const timeStr = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+    const availabilitySlots = getAvailabilityForDate(day);
+
+    return availabilitySlots.some((slot) => {
+      return timeStr >= slot.startTime && timeStr < slot.endTime;
+    });
+  };
 
   return (
     <motion.div
@@ -153,7 +164,13 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
                             className="absolute inset-x-0 top-0  h-[48px]"
                           >
                             <AddEditAppointmentDialog startDate={day}>
-                              <div className="absolute inset-0 cursor-pointer transition-colors hover:bg-secondary" />
+                              <div
+                                className={`absolute inset-0 cursor-pointer transition-colors hover:bg-secondary ${
+                                  isTimeSlotAvailable(day, hour, 0)
+                                    ? "bg-green-50/30 dark:bg-green-950/20 hover:bg-green-100/50 dark:hover:bg-green-900/30"
+                                    : ""
+                                }`}
+                              />
                             </AddEditAppointmentDialog>
                           </DroppableArea>
 
@@ -166,7 +183,13 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
                             className="absolute inset-x-0 bottom-0 h-[48px]"
                           >
                             <AddEditAppointmentDialog startDate={day}>
-                              <div className="absolute inset-0 cursor-pointer transition-colors hover:bg-secondary" />
+                              <div
+                                className={`absolute inset-0 cursor-pointer transition-colors hover:bg-secondary ${
+                                  isTimeSlotAvailable(day, hour, 30)
+                                    ? "bg-green-50/30 dark:bg-green-950/20 hover:bg-green-100/50 dark:hover:bg-green-900/30"
+                                    : ""
+                                }`}
+                              />
                             </AddEditAppointmentDialog>
                           </DroppableArea>
                         </motion.div>

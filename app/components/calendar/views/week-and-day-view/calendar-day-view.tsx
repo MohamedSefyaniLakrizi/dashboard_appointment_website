@@ -20,11 +20,26 @@ interface IProps {
 }
 
 export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
-  const { selectedDate, setSelectedDate, users, use24HourFormat } =
-    useCalendar();
+  const {
+    selectedDate,
+    setSelectedDate,
+    users,
+    use24HourFormat,
+    getAvailabilityForDate,
+  } = useCalendar();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
+
+  // Helper function to check if a time slot is available
+  const isTimeSlotAvailable = (hour: number, minute: number) => {
+    const timeStr = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+    const availabilitySlots = getAvailabilityForDate(selectedDate);
+
+    return availabilitySlots.some((slot) => {
+      return timeStr >= slot.startTime && timeStr < slot.endTime;
+    });
+  };
 
   useEffect(() => {
     const handleDragOver = (e: DragEvent) => {
@@ -149,7 +164,13 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                       className="absolute inset-x-0 top-0 h-[48px]"
                     >
                       <AddEditAppointmentDialog startDate={selectedDate}>
-                        <div className="absolute inset-0 cursor-pointer transition-colors hover:bg-secondary" />
+                        <div
+                          className={`absolute inset-0 cursor-pointer transition-colors hover:bg-secondary ${
+                            isTimeSlotAvailable(hour, 0)
+                              ? "bg-green-50/30 dark:bg-green-950/20 hover:bg-green-100/50 dark:hover:bg-green-900/30"
+                              : ""
+                          }`}
+                        />
                       </AddEditAppointmentDialog>
                     </DroppableArea>
 
@@ -162,7 +183,13 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                       className="absolute inset-x-0 bottom-0 h-[48px]"
                     >
                       <AddEditAppointmentDialog startDate={selectedDate}>
-                        <div className="absolute inset-0 cursor-pointer transition-colors hover:bg-secondary" />
+                        <div
+                          className={`absolute inset-0 cursor-pointer transition-colors hover:bg-secondary ${
+                            isTimeSlotAvailable(hour, 30)
+                              ? "bg-green-50/30 dark:bg-green-950/20 hover:bg-green-100/50 dark:hover:bg-green-900/30"
+                              : ""
+                          }`}
+                        />
                       </AddEditAppointmentDialog>
                     </DroppableArea>
                   </div>
