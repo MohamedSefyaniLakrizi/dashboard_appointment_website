@@ -502,7 +502,7 @@ export function AvailabilityManager({ onUpdate }: AvailabilityManagerProps) {
                 <div className="text-center">
                   <div className="font-medium">Un jour spécifique</div>
                   <div className="text-xs text-muted-foreground">
-                    Modifier les horaires d'une date précise
+                    Modifier les horaires d&apos;une date précise
                   </div>
                 </div>
               </Button>

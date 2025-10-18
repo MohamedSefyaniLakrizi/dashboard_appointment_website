@@ -321,7 +321,7 @@ export function ExceptionsManager({
 
           <div className="space-y-4">
             <div>
-              <Label>Type d'exception</Label>
+              <Label>Type d&apos;exception</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value: any) =>
