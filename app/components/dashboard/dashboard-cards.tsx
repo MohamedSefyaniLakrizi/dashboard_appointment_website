@@ -365,22 +365,22 @@ export function AlertsCard({
   }
 
   return (
-    <Card className="border-orange-200 bg-orange-50 px-3 py-4 gap-2">
+    <Card className="px-3 py-4 gap-2">
       <CardHeader className="px-2">
-        <CardTitle className="flex items-center gap-2 text-orange-800 text-sm ">
+        <CardTitle className="flex items-center gap-2 text-sm ">
           <AlertTriangle className="h-4 w-4" />
           Alertes
         </CardTitle>
       </CardHeader>
       <CardContent className="px-2">
-        <div className="space-y-2">
+        <div className="space-y-2 flex flex-col">
           {overdueInvoices > 0 && (
             <Link href="/invoices">
               <div className="flex items-center justify-between p-2 bg-red-50 rounded-lg cursor-pointer hover:bg-red-100 transition-colors">
                 <div className="flex items-center gap-2">
                   <Receipt className="h-3 w-3 text-red-600" />
                   <span className="font-medium text-red-800 text-xs">
-                    Factures en retard
+                    Paiement en retard
                   </span>
                 </div>
                 <Badge variant="destructive" className="text-xs">
@@ -391,7 +391,7 @@ export function AlertsCard({
           )}
           {upcomingAppointments > 0 && (
             <Link href="/calendar">
-              <div className="flex items-center justify-between p-2 bg-blue-50 rounded cursor-pointer hover:bg-blue-100 transition-colors">
+              <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-3 w-3 text-blue-600" />
                   <span className="font-medium text-blue-800 text-xs">

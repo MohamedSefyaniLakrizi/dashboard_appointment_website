@@ -14,10 +14,11 @@ export async function getClients() {
   }
 
   try {
-    // Single-user app: get all confirmed clients only
+    // Single-user app: get all confirmed clients that are not deleted
     const clients = await prisma.client.findMany({
       where: {
         confirmed: true,
+        deleted: false, // Exclude soft-deleted clients
       },
       orderBy: {
         createdAt: "desc",
@@ -55,24 +56,50 @@ export async function createClient(formData: FormData) {
   }
 
   try {
-    // Single-user app: create client without user association (confirmed by default for admin)
-    const client = await prisma.client.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        phoneNumber: phoneNumber || "",
-        preferredContact: (preferredContact as any) || "EMAIL",
-        sendInvoiceAutomatically,
-        defaultRate,
-        confirmed: true, // Admin-created clients are automatically confirmed
-      },
+    // Check if client exists (including deleted ones)
+    const existingClient = await prisma.client.findUnique({
+      where: { email },
     });
+
+    let client;
+
+    if (existingClient) {
+      // Client exists - restore if deleted, otherwise update
+      client = await prisma.client.update({
+        where: { id: existingClient.id },
+        data: {
+          firstName,
+          lastName,
+          phoneNumber: phoneNumber || "",
+          preferredContact: (preferredContact as any) || "EMAIL",
+          sendInvoiceAutomatically,
+          defaultRate,
+          confirmed: true,
+          deleted: false, // Restore if it was deleted
+        },
+      });
+    } else {
+      // Client doesn't exist - create new one
+      client = await prisma.client.create({
+        data: {
+          firstName,
+          lastName,
+          email,
+          phoneNumber: phoneNumber || "",
+          preferredContact: (preferredContact as any) || "EMAIL",
+          sendInvoiceAutomatically,
+          defaultRate,
+          confirmed: true,
+        },
+      });
+    }
 
     revalidatePath("/clients");
     return {
       success: true,
-      message: "Client created successfully",
+      message: existingClient
+        ? `Client ${existingClient.deleted ? "restored and" : ""} updated successfully`
+        : "Client created successfully",
       client: {
         id: client.id,
         name: `${client.firstName} ${client.lastName}`,
@@ -85,8 +112,8 @@ export async function createClient(formData: FormData) {
       },
     };
   } catch (error) {
-    console.error("Error creating client:", error);
-    return { success: false, error: "Failed to create client" };
+    console.error("Error creating/updating client:", error);
+    return { success: false, error: "Failed to create/update client" };
   }
 }
 
@@ -160,15 +187,45 @@ export async function deleteClient(clientId: string) {
   }
 
   try {
-    // Single-user app: delete client directly
-    await prisma.client.delete({
+    // Check if client has any appointments or invoices
+    const appointmentCount = await prisma.appointment.count({
+      where: {
+        clientId,
+      },
+    });
+
+    const invoiceCount = await prisma.invoice.count({
+      where: {
+        clientId,
+      },
+    });
+
+    // If no appointments or invoices, hard delete
+    if (appointmentCount === 0 && invoiceCount === 0) {
+      await prisma.client.delete({
+        where: {
+          id: clientId,
+        },
+      });
+      revalidatePath("/clients");
+      return { success: true, message: "Client deleted successfully" };
+    }
+
+    // Otherwise, soft delete (mark as deleted)
+    await prisma.client.update({
       where: {
         id: clientId,
+      },
+      data: {
+        deleted: true,
       },
     });
 
     revalidatePath("/clients");
-    return { success: true, message: "Client deleted successfully" };
+    return {
+      success: true,
+      message: "Client archived successfully (has appointments or invoices)",
+    };
   } catch (error) {
     console.error("Error deleting client:", error);
     return { success: false, error: "Failed to delete client" };

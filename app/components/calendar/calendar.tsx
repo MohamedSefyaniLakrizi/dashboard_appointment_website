@@ -13,7 +13,13 @@ import { startOfMonth, endOfMonth, addMonths } from "date-fns";
 async function getCalendarData() {
   const currentDate = new Date();
   const startDate = startOfMonth(addMonths(currentDate, -1));
-  const endDate = endOfMonth(addMonths(currentDate, 2));
+  const endDate = endOfMonth(addMonths(currentDate, 12));
+
+  // Always fetch fresh data - timestamp ensures cache busting
+  const timestamp = Date.now();
+  console.log(
+    `📅 Fetching calendar data at ${new Date(timestamp).toISOString()}`
+  );
 
   const [eventsResult, usersResult, weeklyResult, dateResult] =
     await Promise.all([
@@ -28,11 +34,12 @@ async function getCalendarData() {
     users: usersResult,
     weeklyAvailability: weeklyResult.success ? weeklyResult.data : [],
     dateAvailability: dateResult.success ? dateResult.data : [],
+    timestamp, // Always unique
   };
 }
 
 export async function Calendar() {
-  const { events, users, weeklyAvailability, dateAvailability } =
+  const { events, users, weeklyAvailability, dateAvailability, timestamp } =
     await getCalendarData();
 
   return (
@@ -42,6 +49,7 @@ export async function Calendar() {
       view="month"
       weeklyAvailability={weeklyAvailability}
       dateAvailability={dateAvailability}
+      key={timestamp}
     >
       <DndProvider showConfirmation={false}>
         <div className="h-full w-full border rounded-xl">
